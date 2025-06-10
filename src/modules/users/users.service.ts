@@ -22,12 +22,12 @@ export class UsersService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  create(userData: Partial<User>) {
+  async create(userData: Partial<User>) {
     // Validate email format
     if (!userData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)) {
       throw new Error('Invalid email format');
     }
-
+    
     // Validate required fields
     if (!userData.password) {
       throw new Error('Password is required');
@@ -36,7 +36,20 @@ export class UsersService {
     if (!userData.name) {
       throw new Error('Username is required');
     }
+
+
+    const bcrypt = require('bcrypt');
+    const saltRounds = 10;
+    userData.password = await bcrypt.hash(userData.password, saltRounds);
     const user = this.userRepository.create(userData);
     return this.userRepository.save(user);
+  }
+
+  async update(id: number, userData: Partial<User>) {
+    return this.userRepository.update(id, userData);
+  }
+
+  async delete(id: number) {
+    return this.userRepository.delete(id);
   }
 }
