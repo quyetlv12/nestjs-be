@@ -1,6 +1,8 @@
 import { DataSource } from 'typeorm';
-import { join } from 'path';
+import * as dotenv from 'dotenv';
+import { join } from 'path'; // Thêm join từ 'path' để xử lý đường dẫn
 
+dotenv.config({ path: '.env' }); // Đảm bảo đọc biến môi trường từ .env
 export const AppDataSource = new DataSource({
   type: 'mysql',
   host: 'localhost',
