@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateUserTable1700000000000 implements MigrationInterface {
+export class CreateUserTable1700000000002 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
@@ -27,6 +27,13 @@ export class CreateUserTable1700000000000 implements MigrationInterface {
             isUnique: true,
           },
           {
+            name: 'phone',
+            type: 'varchar',
+            length: '255',
+            isNullable: true,
+            isUnique: true,
+          },
+          {
             name: 'password',
             type: 'varchar',
             length: '255',
@@ -35,16 +42,16 @@ export class CreateUserTable1700000000000 implements MigrationInterface {
           {
             name: 'created_at',
             type: 'timestamp',
-            default: 'CURRENT_TIMESTAMP',
+            default: 'now()',
           },
           {
             name: 'updated_at',
             type: 'timestamp',
-            default: 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+            default: 'now()',
           },
         ],
       }),
-      true,
+      true
     );
   }
 

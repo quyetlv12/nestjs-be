@@ -1,16 +1,17 @@
-import { DataSource } from 'typeorm';
-import * as dotenv from 'dotenv';
-import { join } from 'path'; // Thêm join từ 'path' để xử lý đường dẫn
+// src/database/typeorm.config.ts
+import { DataSource, DataSourceOptions } from 'typeorm';
 
-dotenv.config({ path: '.env' }); // Đảm bảo đọc biến môi trường từ .env
-export const AppDataSource = new DataSource({
-  type: 'mysql',
+export const dataSourceOptions: DataSourceOptions = {
+  type: 'postgres',
   host: 'localhost',
-  port: 3306,
-  username: 'root',
-  password: '',
+  port: 5432,
+  username: 'postgres',
+  password: '03122001',
   database: 'nest_db',
-  entities: [join(__dirname, '../**/*.entity{.ts,.js}')],
-  migrations: [join(__dirname, 'migrations/**/*{.ts,.js}')],
-  synchronize: false,
-});
+  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+  migrations: [__dirname + '/migrations/*{.ts,.js}'],
+  synchronize: true,
+};
+
+const AppDataSource = new DataSource(dataSourceOptions);
+export default AppDataSource;

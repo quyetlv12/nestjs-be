@@ -3,11 +3,11 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../users/user.entity';
-import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { LoginDto, RegisterDto } from 'src/interfaces';
+import { Repository } from 'typeorm';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -28,9 +28,9 @@ export class AuthService {
       }
 
       const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+
       return this.userRepository.save({
-        email: registerDto.email,
-        name: registerDto.name,
+        ...registerDto,
         password: hashedPassword,
       });
     } catch (error) {
