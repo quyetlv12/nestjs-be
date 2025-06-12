@@ -4,10 +4,12 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
+import { Talent } from '../talents/entities/talent.entity';
 
 @Entity('user')
 export class User {
@@ -40,5 +42,9 @@ export class User {
     joinColumn: { name: 'user_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
   })
+  // One user can create many talents
+  @OneToMany(() => Talent, (talent) => talent.bussiness_id)
+  talents: Talent[];
+  
   roles: Role[];
 }

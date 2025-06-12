@@ -10,6 +10,12 @@ nest generate controller modules/users
 
 nest generate service modules/users
 
+## generate resource
+nest g resource modules/categories	
+
 ## chạy migration
 
 npm run migration:run
+
+## generate migration
+npm run migration:create

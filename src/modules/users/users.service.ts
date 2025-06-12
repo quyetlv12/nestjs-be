@@ -49,7 +49,7 @@ export class UsersService {
     return this.userRepository.update(id, userData);
   }
 
-  async delete(id: number) {
+  async remove(id: number) {
     return this.userRepository.delete(id);
   }
 }

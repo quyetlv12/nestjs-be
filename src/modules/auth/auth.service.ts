@@ -3,19 +3,30 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import * as _ from 'lodash';
 import { LoginDto, RegisterDto } from 'src/interfaces';
 import { Repository } from 'typeorm';
+import { Role } from '../roles/entities/role.entity';
 import { User } from '../users/user.entity';
-
 @Injectable()
 export class AuthService {
   @InjectRepository(User)
   private userRepository: Repository<User>;
 
+  @InjectRepository(Role)
+  private roleRepository: Repository<Role>;
+
+  constructor(private jwtService: JwtService) {}
+
   async register(registerDto: RegisterDto) {
     try {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(registerDto.email)) {
+        throw new BadRequestException('Email không hợp lệ');
+      }
       if (registerDto.confirmPassword !== registerDto.password) {
         throw new BadRequestException('Mật khẩu không khớp');
       }
@@ -29,31 +40,63 @@ export class AuthService {
 
       const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
+      // Find the User role
+      const userRole = await this.roleRepository.findOne({
+        where: { name: 'User' },
+      });
+
+      if (!userRole) {
+        throw new BadRequestException('Không tìm thấy vai trò');
+      }
+
       return this.userRepository.save({
         ...registerDto,
         password: hashedPassword,
+        roles: [userRole],
       });
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async login(loginDto: LoginDto) {
-    const user = await this.userRepository.findOne({
-      where: { email: loginDto.email },
-    });
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+  async login(loginDto: LoginDto) {    
+    try {
+      const user = await this.userRepository.findOne({
+        where: { email: loginDto.email },
+        relations: ['roles', 'roles.permissions'],
+      });
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
 
-    const isPasswordValid = await bcrypt.compare(
-      loginDto.password,
-      user.password,
-    );
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+      const isPasswordValid = await bcrypt.compare(
+        loginDto.password,
+        user.password,
+      );
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
 
-    return user;
+      const _user = _.omit(user, ['password']);
+
+      const permissions = user.roles.reduce((acc, role) => {
+        return acc.concat(role.permissions.map((permission) => permission.name));
+      }, [] as string[]);
+      const tokenData = {
+        email : user.email,
+        phone : user.phone,
+        name : user.name,
+        permissions
+      };
+      const token = this.jwtService.sign(tokenData, {
+        algorithm: 'HS256'
+      });
+      return {
+        user: _user,
+        token,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

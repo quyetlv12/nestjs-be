@@ -1,28 +1,47 @@
 import { Permission } from 'src/modules/permissions/entities/permission.entity';
-import { DataSource } from 'typeorm';
+import { Role } from 'src/modules/roles/entities/role.entity';
+import { DataSource, ILike, In } from 'typeorm';
 
-export const seedPermissions = async (dataSource: DataSource) => {
+export const seedRoles = async (dataSource: DataSource) => {
+  const roleRepo = dataSource.getRepository(Role);
   const permissionRepo = dataSource.getRepository(Permission);
 
-  const permissions = [
-    { name: 'view_user', description: 'Xem danh sách người dùng' },
-    { name: 'create_user', description: 'Tạo người dùng mới' },
-    { name: 'update_user', description: 'Cập nhật thông tin người dùng' },
-    { name: 'delete_user', description: 'Xoá người dùng' },
-    { name: 'view_role', description: 'Xem danh sách vai trò' },
-    { name: 'create_role', description: 'Tạo vai trò mới' },
-    { name: 'update_role', description: 'Cập nhật vai trò' },
-    { name: 'delete_role', description: 'Xoá vai trò' },
-    { name: 'assign_role', description: 'Gán vai trò cho người dùng' },
-    { name: 'manage_permission', description: 'Quản lý các quyền' },
+  // Get all permissions for admin role
+  const allPermissions = await permissionRepo.find({});
+
+  // find permisson view 
+  const userPermissions = await permissionRepo.find({
+    where : {
+      name : ILike('%view%')
+    }
+  });
+
+
+  // Define default roles
+  const roles = [
+    { 
+      name: 'Admin', 
+      description: 'Quản trị viên với toàn quyền quản lý hệ thống',
+      permissions: allPermissions
+    },
+    { 
+      name: 'Editor', 
+      description: 'Biên tập viên với quyền quản lý nội dung',
+      permissions: await permissionRepo.findBy({ name: In(['view_user', 'view_role']) })
+    },
+    { 
+      name: 'User', 
+      description: 'Người dùng thông thường',
+      permissions: userPermissions
+    },
   ];
 
-  for (const perm of permissions) {
-    const exists = await permissionRepo.findOneBy({ name: perm.name });
+  for (const role of roles) {
+    const exists = await roleRepo.findOneBy({ name: role.name });
     if (!exists) {
-      await permissionRepo.save(perm);
+      await roleRepo.save(role);
     }
   }
 
-  console.log('✅ Seeded permissions!');
+  console.log('✅ Seeded roles!');
 };

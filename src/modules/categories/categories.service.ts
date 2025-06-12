@@ -1,26 +1,62 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Categories } from './entities/category.entity';
 
 @Injectable()
 export class CategoriesService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  constructor(
+    @InjectRepository(Categories)
+    private readonly categoryRepository: Repository<Categories>
+  ) {}
+
+  async create(createCategoryDto: CreateCategoryDto): Promise<Categories> {
+    const category = this.categoryRepository.create(createCategoryDto);
+    return await this.categoryRepository.save(category);
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  async findAll(): Promise<Categories[]> {
+    return await this.categoryRepository.find({});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: number): Promise<Categories> {
+    const category = await this.categoryRepository.findOne({
+      where : {id}
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with ID ${id} not found`);
+    }
+
+    return category;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Categories> {
+    const category = await this.findOne(id);
+    
+    Object.assign(category, updateCategoryDto);
+    
+    return await this.categoryRepository.save(category);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number): Promise<void> {
+    const category = await this.findOne(id);
+    
+    await this.categoryRepository.remove(category);
+  }
+
+  async findBySlug(slug: string): Promise<Categories> {
+    const category = await this.categoryRepository.findOne({
+      where: { slug },
+      relations: ['parent', 'children']
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with slug ${slug} not found`);
+    }
+
+    return category;
   }
 }
