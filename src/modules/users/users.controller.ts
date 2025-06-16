@@ -1,7 +1,7 @@
 // src/modules/users/users.controller.ts
 import { Permissions } from '@/common/decorators/permissions.decorator';
 import { PermissionsGuard } from '@/common/guards/permissions.guard';
-import { Body, Controller, Delete, Get, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
@@ -12,9 +12,15 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Permissions('view_user')
-  async findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+  @Permissions('view_user_list')
+  async findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10): Promise<{ data: User[]; meta: { total: number; page: number; limit: number; totalPages: number; } }> {
+    return this.usersService.findAll(page, limit);
+  }
+
+  @Get('all-user-list')
+  @Permissions('view_user_list')
+  async allUserList() {
+    return this.usersService.findAllUser();
   }
 
   @Post()
@@ -24,7 +30,7 @@ export class UsersController {
   }
 
   @Get()
-  @Permissions('create_user')
+  @Permissions('view_detail_user')
   async findOne(id : number) {
     return this.usersService.findOne(+id);
   }

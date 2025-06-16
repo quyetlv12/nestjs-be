@@ -31,6 +31,12 @@ export class RolesController {
     return this.rolesService.findAll();
   }
 
+  @Get('/all')
+  @Permissions('view_role')
+  findAllRole() {
+    return this.rolesService.findAllRole();
+  }
+
   @Get(':id')
   @Permissions('view_detail_role')
   findOne(@Param('id') id: string) {

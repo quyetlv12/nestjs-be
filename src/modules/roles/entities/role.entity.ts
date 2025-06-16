@@ -26,6 +26,9 @@ import {
   
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
+
+    @Column({ name: 'is_deleted', default: false })
+    isDeleted: boolean;
   
     // Many-to-many with permissions
     @ManyToMany(() => Permission, (permission) => permission.roles, {

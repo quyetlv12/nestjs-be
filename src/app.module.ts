@@ -9,16 +9,18 @@ import { RolesModule } from './modules/roles/roles.module';
 import { UsersModule } from './modules/users/users.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TalentsModule } from './modules/talents/talents.module';
+import { VideosModule } from './modules/videos/videos.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(dataSourceOptions),
+    TypeOrmModule.forRoot(dataSourceOptions), // connect to database local
     UsersModule,
     AuthModule,
     RolesModule,
     PermissionsModule,
     CategoriesModule,
     TalentsModule,
+    VideosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

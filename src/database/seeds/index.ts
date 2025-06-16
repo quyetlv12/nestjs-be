@@ -1,11 +1,11 @@
 import dataSource from '../typeorm.config';
-import { seedPermissions } from './permission.seed';
-import { seedRoles } from './role.seed';
+import { seedRolesAndPermissions } from './role.seed';
+import { seedUsers } from './user.seed';
 
 dataSource.initialize().then(async () => {
   console.log('🔁 Running seeders...');
-  await seedPermissions(dataSource);
-  await seedRoles(dataSource);
+  await seedRolesAndPermissions(dataSource);
+  await seedUsers(dataSource);
   await dataSource.destroy();
   console.log('🌱 Done seeding');
 }).catch((err) => {

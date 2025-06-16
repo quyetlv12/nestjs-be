@@ -29,6 +29,11 @@ export class CreateRolesTable1700000000000 implements MigrationInterface {
             default: "now()",
           },
           {
+            name: "is_deleted",
+            type: "boolean",
+            default: false,
+          },
+          {
             name: "updated_at",
             type: "timestamp",
             default: "now()",

@@ -1,29 +1,42 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Categories } from './entities/category.entity';
 
 @Injectable()
-export class CategoriesService {
+export class CategoryService {
   constructor(
-    @InjectRepository(Categories)
-    private readonly categoryRepository: Repository<Categories>
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
   ) {}
 
-  async create(createCategoryDto: CreateCategoryDto): Promise<Categories> {
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     const category = this.categoryRepository.create(createCategoryDto);
-    return await this.categoryRepository.save(category);
+
+    // Nếu có parentId thì tìm và gán parent
+    if (createCategoryDto.parentId) {
+      const parent = await this.categoryRepository.findOneBy({ id: createCategoryDto.parentId });
+      if (!parent) {
+        throw new NotFoundException('Parent category not found');
+      }
+      category.parent = parent;
+    }
+
+    return this.categoryRepository.save(category);
   }
 
-  async findAll(): Promise<Categories[]> {
-    return await this.categoryRepository.find({});
+  async findAll(): Promise<Category[]> {
+    return this.categoryRepository.find({
+      relations: ['parent', 'children'],
+    });
   }
 
-  async findOne(id: number): Promise<Categories> {
+  async findOne(id: number): Promise<Category> {
     const category = await this.categoryRepository.findOne({
-      where : {id}
+      where: { id },
+      relations: ['parent', 'children' , 'users'],
     });
 
     if (!category) {
@@ -33,30 +46,26 @@ export class CategoriesService {
     return category;
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto): Promise<Categories> {
+  async update(id: number, updateDto: UpdateCategoryDto): Promise<Category> {
     const category = await this.findOne(id);
-    
-    Object.assign(category, updateCategoryDto);
-    
-    return await this.categoryRepository.save(category);
+
+    if (updateDto.name) category.name = updateDto.name;
+
+    if (updateDto.parentId !== undefined) {
+      if (updateDto.parentId === null) {
+        category.parent = undefined;
+      } else {
+        const parent = await this.categoryRepository.findOneBy({ id: updateDto.parentId });
+        if (!parent) throw new NotFoundException('Parent category not found');
+        category.parent = parent;
+      }
+    }
+
+    return this.categoryRepository.save(category);
   }
 
   async remove(id: number): Promise<void> {
     const category = await this.findOne(id);
-    
     await this.categoryRepository.remove(category);
-  }
-
-  async findBySlug(slug: string): Promise<Categories> {
-    const category = await this.categoryRepository.findOne({
-      where: { slug },
-      relations: ['parent', 'children']
-    });
-
-    if (!category) {
-      throw new NotFoundException(`Category with slug ${slug} not found`);
-    }
-
-    return category;
   }
 }

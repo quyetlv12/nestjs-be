@@ -42,7 +42,7 @@ export class AuthService {
 
       // Find the User role
       const userRole = await this.roleRepository.findOne({
-        where: { name: 'User' },
+        where: { name: 'user' },
       });
 
       if (!userRole) {

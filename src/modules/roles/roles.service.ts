@@ -35,6 +35,7 @@ export class RolesService {
       name,
       description,
       permissions,
+      isDeleted: true,
     });
 
     return await this.roleRepository.save(role);
@@ -92,5 +93,11 @@ export class RolesService {
     }
 
     await this.roleRepository.remove(role);
+  }
+
+  async findAllRole() {
+    return this.roleRepository.find({
+      relations: ['permissions'],
+    });
   }
 }

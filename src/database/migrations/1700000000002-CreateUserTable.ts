@@ -18,6 +18,7 @@ export class CreateUserTable1700000000002 implements MigrationInterface {
             type: 'varchar',
             length: '255',
             isNullable: false,
+            isUnique: true,
           },
           {
             name: 'email',
@@ -49,6 +50,57 @@ export class CreateUserTable1700000000002 implements MigrationInterface {
             type: 'timestamp',
             default: 'now()',
           },
+          {
+            name: 'business_id',
+            type: 'int',
+            isNullable: true,
+          },
+          {
+            name : "avatar",
+            type : "varchar",
+            isNullable : true
+          },
+          {
+            name: "availableFor24hDelivery",
+            type: "boolean",
+            default: false
+          },
+          {
+            name: "lastCompletedVideoAt",
+            type: "timestamp",
+            isNullable: true
+          },
+          {
+            name: "averageVideoLength",
+            type: "varchar",
+            isNullable: true
+          },
+          {
+            name: "description",
+            type: "text",
+            isNullable: true
+          },
+          {
+            name: "reasonsToGetAVideo",
+            type: "json", // hoặc "jsonb"
+            isNullable: true,
+          },
+          {
+            name: "address",
+            type: "varchar",
+            isNullable: true
+          },
+
+          {
+            name: "price",
+            type: "varchar",
+            isNullable: true
+          },
+          {
+            name : "job",
+            type : "varchar",
+            isNullable : true
+          }          
         ],
       }),
       true

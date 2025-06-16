@@ -10,8 +10,29 @@ export class UsersService {
     private userRepository: Repository<User>,
   ) {}
 
-  findAll() {
-    return this.userRepository.find();
+  async findAll(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+    
+    const [users, total] = await this.userRepository.findAndCount({
+      skip,
+      take: limit,
+    });
+
+    return {
+      data: users,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async findAllUser() {
+    return this.userRepository.find({
+      select: ['id', 'name', 'email'],
+    });
   }
 
   findOne(id: number) {
@@ -36,7 +57,6 @@ export class UsersService {
     if (!userData.name) {
       throw new Error('Username is required');
     }
-
 
     const bcrypt = require('bcrypt');
     const saltRounds = 10;

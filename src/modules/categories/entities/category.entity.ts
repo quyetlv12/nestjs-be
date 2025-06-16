@@ -1,32 +1,48 @@
+// src/entities/category.entity.ts
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  JoinColumn,
+  ManyToMany,
 } from 'typeorm';
-
+import { User } from '../../users/user.entity';
 
 @Entity('categories')
-export class Categories {
+export class Category {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column()
   name: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({nullable: true})
   description: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({nullable: true})
   slug: string;
 
-  @Column({ type: 'boolean', default: true })
-  isActive: boolean;
+  @ManyToOne(() => Category, (category) => category.children, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'parentId' })
+  parent?: Category;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @OneToMany(() => Category, (category) => category.parent)
+  children: Category[];
+
+  @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
+  @UpdateDateColumn()
   updatedAt: Date;
+
+
+  @ManyToMany(() => User, (user) => user.categories)
+  users: User[];
 }
