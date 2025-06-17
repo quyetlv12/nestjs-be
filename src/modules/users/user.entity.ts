@@ -11,6 +11,7 @@ import {
 import { Role } from '../roles/entities/role.entity';
 import { Category } from '../categories/entities/category.entity';
 import { Video } from '../videos/entities/video.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('user')
 export class User {
@@ -24,6 +25,7 @@ export class User {
   email: string;
 
   @Column({ length: 255 })
+  @Exclude()
   password: string;
 
   @Column({ nullable: true })
