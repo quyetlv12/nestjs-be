@@ -36,7 +36,10 @@ export class UsersService {
   }
 
   findOne(id: number) {
-    return this.userRepository.findOne({ where: { id } });
+    return this.userRepository.findOne({
+      where: { id },
+      relations: ['videos'],
+    });
   }
 
   findByEmail(email: string) {

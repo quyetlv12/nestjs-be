@@ -7,6 +7,8 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -18,12 +20,12 @@ import { User } from './user.entity';
 import { UsersService } from './users.service';
 
 
-@UseGuards(AuthGuard('jwt'), PermissionsGuard)
 @Controller('/api/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   @Permissions('view_user_list')
   async findAll(
     @Query('page') page: number = 1,
@@ -42,24 +44,26 @@ export class UsersController {
   }
 
   @Post()
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   @Permissions('create_user')
   async create(@Body() user: Partial<User>): Promise<User> {
     return this.usersService.create(user);
   }
 
-  @Get()
-  @Permissions('view_detail_user')
-  async findOne(id: number) {
+  @Get(":id")
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOne(+id);
   }
 
   @Put()
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   @Permissions('update_user')
   async update(id: number, user: Partial<User>) {
     return this.usersService.update(+id, user);
   }
 
   @Delete()
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   @Permissions('delete_user')
   async remove(id: number) {
     return this.usersService.remove(+id);
