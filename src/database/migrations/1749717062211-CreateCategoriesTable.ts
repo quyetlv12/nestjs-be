@@ -21,6 +21,11 @@ export class CreateCategories1749717062211 implements MigrationInterface {
             isNullable: true,
           },
           {
+            name : 'thumbnail',
+            type : 'varchar',
+            isNullable : false,
+          },
+          {
             name: 'slug',
             type: 'varchar',
             isNullable: true,

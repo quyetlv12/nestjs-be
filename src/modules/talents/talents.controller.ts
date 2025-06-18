@@ -12,14 +12,14 @@ import {
 } from '@nestjs/common';
 import { UpdateTalentDto } from './dto/update-talent.dto';
 import { TalentsService } from './talents.service';
+import { Permissions } from '@/common/decorators/permissions.decorator';
 
-// @UseGuards(AuthGuard('jwt') , PermissionsGuard)
 @Controller('/api/talents')
 export class TalentsController {
   constructor(private readonly talentsService: TalentsService) {}
 
   @Post()
-  // @Permissions('create_talent')
+  @Permissions('create_talent')
   create(@Body() createTalentDto: any) {
    try {    
     return this.talentsService.create(createTalentDto);
@@ -29,11 +29,9 @@ export class TalentsController {
   }
 
   @Get()
-  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-    return this.talentsService.findAll(page, limit);
+  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10 , @Query('categoryId') categoryId: string , @Query('price') price: string , @Query('name') name: string) {
+    return this.talentsService.findAll(page, limit , categoryId , price , name);
   }
-
-
 
   @Get('/all')
   findAllTalent() {
@@ -51,13 +49,13 @@ export class TalentsController {
   }
 
   @Put(':id')
-  // @Permissions('update_talent')
+  @Permissions('update_talent')
   update(@Param('id') id: string, @Body() updateTalentDto: UpdateTalentDto) {
     return this.talentsService.update(+id, updateTalentDto);
   }
 
   @Delete(':id')
-  // @Permissions('delete_talent')
+  @Permissions('delete_talent')
   remove(@Param('id') id: string) {
     return this.talentsService.remove(+id);
   }

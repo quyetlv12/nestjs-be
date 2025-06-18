@@ -12,7 +12,7 @@ export class CategoryService {
     private categoryRepository: Repository<Category>,
   ) {}
 
-  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {    
     const category = this.categoryRepository.create(createCategoryDto);
 
     // Nếu có parentId thì tìm và gán parent

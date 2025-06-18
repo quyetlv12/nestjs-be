@@ -26,6 +26,9 @@ export class Category {
   @Column({nullable: true})
   slug: string;
 
+  @Column({nullable: true})
+  thumbnail: string;
+
   @ManyToOne(() => Category, (category) => category.children, {
     nullable: true,
     onDelete: 'CASCADE',

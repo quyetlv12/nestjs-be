@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Between, In, Like, Repository } from 'typeorm';
 import { Category } from '../categories/entities/category.entity';
 import { Role } from '../roles/entities/role.entity';
 import { User } from '../users/user.entity';
@@ -47,13 +47,15 @@ export class TalentsService {
     // Create talent with role
     const role = await this.roleRepository.findOneBy({ name: 'talent' });
 
-
     const categories = await this.categoryRepository.find({
       where: { id: In(createTalentDto.categories) },
     });
 
     if (!role) {
-      throw new HttpException("Role 'talent' not found", HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        "Role 'talent' not found",
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const talent = this.talentRepository.create({
@@ -65,14 +67,41 @@ export class TalentsService {
     return this.talentRepository.save(talent);
   }
 
-  async findAll(page: number = 1, limit: number = 10) {
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+    categoryId: string,
+    price: string,
+    name: string,
+  ) {
     const skip = (page - 1) * limit;
+    const where: any = {
+      roles: { name: 'talent' },
+    };
+
+    if (name) {
+      where.name = Like(`%${name}%`);
+    }
+
+    if (categoryId) {
+      where.categories = { id: +categoryId };
+    }
+
+    if (price) {
+      if (price.includes('-')) {
+        const [min, max] = price.split('-').map(Number);
+        console.log('min', min);
+        console.log('max', max);
+
+        where.price = Between(min, max);
+      } else {
+        where.price = +price;
+      }
+    }
 
     const [talents, total] = await this.talentRepository.findAndCount({
-      relations: ['categories' , 'videos'],
-      where: {
-        roles: { name: 'talent' },
-      },
+      relations: ['categories', 'videos'],
+      where,
       select: {
         id: true,
         name: true,
@@ -86,7 +115,7 @@ export class TalentsService {
         description: true,
         reasonsToGetAVideo: true,
         address: true,
-        // roles: true,
+        price: true,
         categories: true,
       },
       skip,
@@ -110,7 +139,7 @@ export class TalentsService {
   findOne(id: number) {
     return this.talentRepository.findOne({
       where: { id },
-      relations: ['roles' , 'videos'],
+      relations: ['roles', 'videos'],
     });
   }
 
@@ -137,15 +166,43 @@ export class TalentsService {
   }
 
   async update(id: number, updateTalentDto: any) {
-    if (updateTalentDto.password) {
-      const bcrypt = require('bcrypt');
-      const saltRounds = 10;
-      updateTalentDto.password = await bcrypt.hash(
-        updateTalentDto.password,
-        saltRounds,
-      );
+    if ('email' in updateTalentDto) {
+      delete updateTalentDto.email;
     }
-    return this.talentRepository.update(id, updateTalentDto);
+
+    const talent = await this.talentRepository.findOne({ where: { id } });
+    if (!talent) {
+      throw new Error(`Talent with ID ${id} not found`);
+    }
+
+    // Kiểm tra trùng name nếu name thay đổi
+    if (updateTalentDto.name && updateTalentDto.name !== talent.name) {
+      const existingByName = await this.talentRepository.findOne({
+        where: { name: updateTalentDto.name },
+      });
+      if (existingByName) {
+        throw new Error(`Name '${updateTalentDto.name}' is already taken`);
+      }
+    }
+
+    // Cập nhật category nếu có
+    if (updateTalentDto.categories) {
+      const categories = await this.categoryRepository.find({
+        where: { id: In(updateTalentDto.categories) },
+      });
+      updateTalentDto.categories = categories;
+    }
+
+    Object.assign(talent, updateTalentDto);
+
+    try {
+      return await this.talentRepository.save(talent);
+    } catch (error: any) {
+      if (error.code === '23505' && error.detail) {
+        throw new Error(error.detail);
+      }
+      throw error;
+    }
   }
 
   async remove(id: number) {

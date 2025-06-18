@@ -18,7 +18,6 @@ export class CreateUserTable1700000000002 implements MigrationInterface {
             type: 'varchar',
             length: '255',
             isNullable: false,
-            isUnique: true,
           },
           {
             name: 'email',
@@ -93,7 +92,7 @@ export class CreateUserTable1700000000002 implements MigrationInterface {
 
           {
             name: "price",
-            type: "varchar",
+            type: "int",
             isNullable: true
           },
           {
