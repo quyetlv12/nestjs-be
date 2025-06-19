@@ -8,21 +8,13 @@ import * as express from 'express';
 const serverless = require('serverless-http');
 
 const expressApp = express();
-expressApp.get('/favicon.ico', (_, res) => {
-  res.status(204).end(); // or use sendFile(path.join(__dirname, '../public/favicon.ico'))
-});
+expressApp.get('/favicon.ico', (_, res : any) => res.status(204).end());
+expressApp.get('/favicon.png', (_, res : any) => res.status(204).end());
 
-expressApp.get('/favicon.png', (_, res) => {
-  res.status(204).end(); // or use sendFile(path.join(__dirname, '../public/favicon.ico'))
-});
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(
-    AppModule,
-    new (require('@nestjs/platform-express').ExpressAdapter)(expressApp),
-    {
-      logger: ['debug', 'error', 'warn', 'log'],
-    },
-  );
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, new (require('@nestjs/platform-express').ExpressAdapter)(expressApp), {
+    logger: ['debug', 'error', 'warn', 'log'],
+  });
 
   app.useStaticAssets(join(__dirname, 'uploads'), {
     prefix: '/uploads/',

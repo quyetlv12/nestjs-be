@@ -5,11 +5,9 @@
       "src": "api/index.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["dist/**", "dist/public/**"]
+        "includeFiles": ["dist/**", "dist/public/**", "dist/uploads/**"]
       }
     }
   ],
-  "routes": [
-    { "src": "/(.*)", "dest": "/api/index.ts" }
-  ]
+  "routes": [{ "src": "/(.*)", "dest": "/api/index.ts" }]
 }
