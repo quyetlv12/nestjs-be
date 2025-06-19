@@ -21,7 +21,7 @@ export class CommentsService {
   async findAllByVideo(videoId: number): Promise<Comment[]> {
     return this.commentRepository.find({
       where: { videoId },
-      relations: ['user'],
+      relations: ['user' , 'video'],
     });
   }
 
