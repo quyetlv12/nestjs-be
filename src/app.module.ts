@@ -12,6 +12,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { TalentsModule } from './modules/talents/talents.module';
 import { VideosModule } from './modules/videos/videos.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { CommentsModule } from './modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { UploadModule } from './modules/upload/upload.module';
     TalentsModule,
     VideosModule,
     UploadModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

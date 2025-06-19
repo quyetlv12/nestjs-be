@@ -12,6 +12,7 @@ import { Role } from '../roles/entities/role.entity';
 import { Category } from '../categories/entities/category.entity';
 import { Video } from '../videos/entities/video.entity';
 import { Exclude } from 'class-transformer';
+import { Comment } from '../comments/entities/comment.entity';
 
 @Entity('user')
 export class User {
@@ -90,4 +91,7 @@ export class User {
 
   @OneToMany(() => Video, (video) => video.createdBy)
   videos: Video[];
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
 }

@@ -1,4 +1,5 @@
 import { User } from '@/modules/users/user.entity';
+import { Comment } from '../../comments/entities/comment.entity';
 import {
     Entity,
     PrimaryGeneratedColumn,
@@ -7,6 +8,7 @@ import {
     UpdateDateColumn,
     ManyToOne,
     JoinColumn,
+    OneToMany,
   } from 'typeorm';
   
   @Entity('videos')
@@ -39,5 +41,8 @@ import {
   
     @UpdateDateColumn()
     updatedAt: Date;
+  
+    @OneToMany(() => Comment, (comment) => comment.video)
+    comments: Comment[];
   }
   

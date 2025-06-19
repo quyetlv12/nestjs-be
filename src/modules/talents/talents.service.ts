@@ -139,7 +139,7 @@ export class TalentsService {
   findOne(id: number) {
     return this.talentRepository.findOne({
       where: { id },
-      relations: ['roles', 'videos'],
+      relations: ['videos'],
     });
   }
 
