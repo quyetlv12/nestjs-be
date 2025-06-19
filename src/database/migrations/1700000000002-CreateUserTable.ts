@@ -55,9 +55,9 @@ export class CreateUserTable1700000000002 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name : "avatar",
-            type : "varchar",
-            isNullable : true
+            name: "avatar",
+            type: "varchar",
+            isNullable: true
           },
           {
             name: "availableFor24hDelivery",
@@ -81,7 +81,7 @@ export class CreateUserTable1700000000002 implements MigrationInterface {
           },
           {
             name: "reasonsToGetAVideo",
-            type: "json", // hoặc "jsonb"
+            type: "json",
             isNullable: true,
           },
           {
@@ -89,17 +89,28 @@ export class CreateUserTable1700000000002 implements MigrationInterface {
             type: "varchar",
             isNullable: true
           },
-
           {
             name: "price",
             type: "int",
             isNullable: true
           },
           {
-            name : "job",
-            type : "varchar",
-            isNullable : true
-          }          
+            name: "job",
+            type: "varchar",
+            isNullable: true
+          },
+          {
+            name: "nick_name",
+            type: "varchar",
+            isUnique: true,
+            isNullable: false
+          },
+          {
+            name: "status",
+            type: "enum",
+            enum: ["active", "inactive", "pending"],
+            default: "'pending'"
+          }
         ],
       }),
       true

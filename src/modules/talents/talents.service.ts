@@ -4,6 +4,8 @@ import { Between, In, Like, Repository } from 'typeorm';
 import { Category } from '../categories/entities/category.entity';
 import { Role } from '../roles/entities/role.entity';
 import { User } from '../users/user.entity';
+import { CreateTalentDto } from './dto/create-talent.dto';
+import { validateCreateTalentDto } from './validate/validateUser';
 
 @Injectable()
 export class TalentsService {
@@ -16,24 +18,23 @@ export class TalentsService {
     private categoryRepository: Repository<Category>,
   ) {}
 
-  async create(createTalentDto: any) {
-    if (!createTalentDto.password) {
-      throw new HttpException('Password is required', HttpStatus.BAD_REQUEST);
+  async create(createTalentDto: CreateTalentDto) {
+    const validationError = validateCreateTalentDto(createTalentDto);
+    if (validationError) {
+      throw new HttpException(validationError, HttpStatus.BAD_REQUEST);
     }
-
-    if (!createTalentDto.name) {
-      throw new HttpException('Name is required', HttpStatus.BAD_REQUEST);
-    }
-    if (!createTalentDto.email) {
-      throw new HttpException('Email is required', HttpStatus.BAD_REQUEST);
-    }
-
     const existingTalent = await this.talentRepository.findOne({
       where: { email: createTalentDto.email },
     });
 
     if (existingTalent) {
       throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
+    }
+    const existingNickName = await this.talentRepository.findOne({
+      where: { nick_name: createTalentDto.nick_name },
+    });
+    if (existingNickName) {
+      throw new HttpException('Nick name already exists', HttpStatus.BAD_REQUEST);
     }
 
     // Hash password
@@ -48,7 +49,7 @@ export class TalentsService {
     const role = await this.roleRepository.findOneBy({ name: 'talent' });
 
     const categories = await this.categoryRepository.find({
-      where: { id: In(createTalentDto.categories) },
+      where: { id: In(createTalentDto.categories || []) },
     });
 
     if (!role) {
@@ -235,5 +236,40 @@ export class TalentsService {
     return this.talentRepository.find({
       where: { business_id: businessId, roles: { name: 'talent' } },
     });
+  }
+
+  async findByNickName(nickName: string) {
+    return this.talentRepository.findOne({
+      where: { nick_name: nickName, roles: { name: 'talent' } },
+      relations: ['roles', 'categories', 'videos'],
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        createdAt: true,
+        updatedAt: true,
+        availableFor24hDelivery: true,
+        lastCompletedVideoAt: true,
+        averageVideoLength: true, 
+        description: true,
+        reasonsToGetAVideo: true,
+        address: true,
+        nick_name: true,
+        price: true,
+        roles: true,
+        categories: true,
+        videos: true,
+      },
+    });
+  }
+
+  async approveTalent(id: number) {
+    const talent = await this.talentRepository.findOne({ where: { id } });
+    if (!talent) {
+      throw new Error(`Talent with ID ${id} not found`);
+    }
+    talent.status = 'active';
+    return this.talentRepository.save(talent);
   }
 }

@@ -8,7 +8,8 @@ import {
   Param,
   Post,
   Put,
-  Query
+  Query,
+  Patch
 } from '@nestjs/common';
 import { UpdateTalentDto } from './dto/update-talent.dto';
 import { TalentsService } from './talents.service';
@@ -58,5 +59,16 @@ export class TalentsController {
   @Permissions('delete_talent')
   remove(@Param('id') id: string) {
     return this.talentsService.remove(+id);
+  }
+
+  @Get('by-nickname/:nickName')
+  findByNickName(@Param('nickName') nickName: string) {
+    return this.talentsService.findByNickName(nickName);
+  }
+
+  @Put(':id/approve')
+  @Permissions('update_talent')
+  approveTalent(@Param('id') id: string) {
+    return this.talentsService.approveTalent(+id);
   }
 }

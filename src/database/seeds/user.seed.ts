@@ -30,6 +30,8 @@ export const seedUsers = async (dataSource: DataSource) => {
     const user = userRepo.create({
       name: roleName,
       email,
+      nick_name : roleName,
+      status : "active",
       password: hashedPassword,
       roles: [role],
     });

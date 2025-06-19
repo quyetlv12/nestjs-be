@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import { CreateTalentDto } from '../talents/dto/create-talent.dto';
+import { UpdateTalentDto } from '../talents/dto/update-talent.dto';
 
 @Injectable()
 export class UsersService {
@@ -46,7 +48,11 @@ export class UsersService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  async create(userData: Partial<User>) {
+  async findByNickName(nickName: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { nick_name: nickName } });
+  }
+
+  async create(userData: CreateTalentDto) {
     // Validate email format
     if (!userData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)) {
       throw new Error('Invalid email format');
@@ -64,11 +70,12 @@ export class UsersService {
     const bcrypt = require('bcrypt');
     const saltRounds = 10;
     userData.password = await bcrypt.hash(userData.password, saltRounds);
+    userData.status = 'active';
     const user = this.userRepository.create(userData);
     return this.userRepository.save(user);
   }
 
-  async update(id: number, userData: Partial<User>) {
+  async update(id: number, userData: UpdateTalentDto) {
     return this.userRepository.update(id, userData);
   }
 

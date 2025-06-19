@@ -13,6 +13,23 @@ export class CategoryService {
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {    
+    // Validate name
+    if (!createCategoryDto.name || typeof createCategoryDto.name !== 'string' || createCategoryDto.name.trim() === '') {
+      throw new Error('Name is required and must be a non-empty string');
+    }
+
+    // Validate thumbnail
+    if (!createCategoryDto.thumbnail || typeof createCategoryDto.thumbnail !== 'string' || createCategoryDto.thumbnail.trim() === '') {
+      throw new Error('Thumbnail is required and must be a non-empty string');
+    }
+
+    // Validate parentId if present
+    if (createCategoryDto.parentId !== undefined && createCategoryDto.parentId !== null) {
+      if (typeof createCategoryDto.parentId !== 'number' || isNaN(createCategoryDto.parentId)) {
+        throw new Error('parentId must be a number');
+      }
+    }
+
     const category = this.categoryRepository.create(createCategoryDto);
 
     // Nếu có parentId thì tìm và gán parent
@@ -40,13 +57,40 @@ export class CategoryService {
     });
 
     if (!category) {
-      throw new NotFoundException(`Category with ID ${id} not found`);
+      throw new NotFoundException(`Category with slug ${id} not found`);
+    }
+
+    return category;
+  }
+
+
+
+  async findSlug(slug: string): Promise<Category> {
+    const category = await this.categoryRepository.findOne({
+      where: { slug },
+      relations: ['parent', 'children' , 'users'],
+    });
+
+    if (!category) {
+      throw new NotFoundException(`Category with slug ${slug} not found`);
     }
 
     return category;
   }
 
   async update(id: number, updateDto: UpdateCategoryDto): Promise<Category> {
+    // Validate: name không được rỗng nếu truyền vào
+    if ('name' in updateDto && (!updateDto.name || updateDto.name.trim() === '')) {
+      throw new Error('Name is required');
+    }
+
+    // Validate: parentId nếu truyền vào phải là số nguyên dương hoặc null
+    if ('parentId' in updateDto && updateDto.parentId !== null && updateDto.parentId !== undefined) {
+      if (typeof updateDto.parentId !== 'number' || updateDto.parentId <= 0 || !Number.isInteger(updateDto.parentId)) {
+        throw new Error('parentId must be a positive integer or null');
+      }
+    }
+
     const category = await this.findOne(id);
 
     if (updateDto.name) category.name = updateDto.name;

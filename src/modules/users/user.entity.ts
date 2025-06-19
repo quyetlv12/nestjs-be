@@ -56,14 +56,20 @@ export class User {
   @Column({ type: 'json', nullable: true })
   reasonsToGetAVideo: string[];
 
-  @Column({ type: 'text', nullable: true })
-  price: string;
+  @Column({ type: 'int', nullable: true })
+  price: number;
 
   @Column({ type: 'varchar', nullable: true })
   job: string;
 
   @Column({ nullable: true })
   address: string;
+
+  @Column({ type: 'varchar', unique: true })
+  nick_name: string;
+
+  @Column({ type: 'enum', enum: ['active', 'inactive', 'pending'], default: 'pending' })
+  status: string;
 
   @ManyToMany(() => Role, (role) => role.users, {
     cascade: true,

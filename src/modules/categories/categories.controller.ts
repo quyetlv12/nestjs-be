@@ -17,9 +17,14 @@ export class CategoriesController {
     return this.categoriesService.findAll();
   }
 
+  @Get('slug/:slug')
+  findSlug(@Param('slug') slug: string) {
+    return this.categoriesService.findSlug(slug);
+  }
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.categoriesService.findOne(id);
   }
 
   @Put(':id')
@@ -31,4 +36,6 @@ export class CategoriesController {
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(+id);
   }
+
+ 
 }

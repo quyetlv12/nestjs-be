@@ -69,6 +69,10 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
+      if (user.status === 'pending') {
+        throw new UnauthorizedException('Tài khoản đang chờ duyệt');
+      }
+
       const isPasswordValid = await bcrypt.compare(
         loginDto.password,
         user.password,

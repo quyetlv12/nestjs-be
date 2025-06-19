@@ -18,6 +18,8 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 
 @Controller('/api/users')
@@ -46,7 +48,7 @@ export class UsersController {
   @Post()
   @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   @Permissions('create_user')
-  async create(@Body() user: Partial<User>): Promise<User> {
+  async create(@Body() user: CreateUserDto) {
     return this.usersService.create(user);
   }
 
@@ -58,7 +60,7 @@ export class UsersController {
   @Put()
   @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   @Permissions('update_user')
-  async update(id: number, user: Partial<User>) {
+  async update(id: number, user: UpdateUserDto) {
     return this.usersService.update(+id, user);
   }
 
@@ -67,5 +69,10 @@ export class UsersController {
   @Permissions('delete_user')
   async remove(id: number) {
     return this.usersService.remove(+id);
+  }
+
+  @Get('by-nickname/:nickName')
+  async findByNickName(@Param('nickName') nickName: string) {
+    return this.usersService.findByNickName(nickName);
   }
 }

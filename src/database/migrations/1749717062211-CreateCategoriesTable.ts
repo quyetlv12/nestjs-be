@@ -29,6 +29,7 @@ export class CreateCategories1749717062211 implements MigrationInterface {
             name: 'slug',
             type: 'varchar',
             isNullable: true,
+            isUnique: true,
           },
           {
             name: 'parentId',
