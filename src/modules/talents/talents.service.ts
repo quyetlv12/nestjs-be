@@ -65,7 +65,7 @@ export class TalentsService {
       categories: categories,
     });
 
-    
+
 
     return this.talentRepository.save(talent);
   }
@@ -234,9 +234,9 @@ export class TalentsService {
     });
   }
 
-  async findByNickName(nickName: string) {
+  async findBySlug(slug: string) {
     return this.talentRepository.findOne({
-      where: { nick_name: nickName, roles: { name: 'talent' } },
+      where: { nick_name: slug, roles: { name: 'talent' } },
       relations: ['roles', 'categories', 'videos'],
       select: {
         id: true,

@@ -68,9 +68,9 @@ export class TalentsController {
     return this.talentsService.remove(+id);
   }
 
-  @Get('by-nickname/:nickName')
-  findByNickName(@Param('nickName') nickName: string) {
-    return this.talentsService.findByNickName(nickName);
+  @Get('slug/:slug')
+  findBySlug(@Param('slug') slug: string) {
+    return this.talentsService.findBySlug(slug);
   }
 
   @Put(':id/approve')
