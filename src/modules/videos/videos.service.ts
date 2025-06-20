@@ -16,18 +16,35 @@ export class VideoService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createVideoDto: CreateVideoDto): Promise<Video> {
-    console.log("createVideoDto" , createVideoDto);
-    
-      const user = await this.userRepository.findOne({
-      where: { id: createVideoDto?.createdById },
+  async create(data: CreateVideoDto & { file: Express.Multer.File }) {
+    const user = await this.userRepository.findOne({
+      where: { id: data?.createdById },
     });
     if (!user) {
-      throw new NotFoundException(`User with ID ${createVideoDto?.createdById} not found`);
+      throw new NotFoundException(
+        `User with ID ${data?.createdById} not found`,
+      );
     }
 
+    // Upload video file to Cloudinary and get the link
+    let videoLink = '';
+    if (data.file) {
+      // Dynamically import UploadService to avoid circular dependency
+      const { UploadService } = await import('../upload/upload.service');
+      const uploadService = new UploadService({
+        get: () => process.env.APP_URL,
+      } as any);
+      const result = await uploadService.uploadImageCloudinary(
+        data.file,
+      );
+      videoLink = result.secure_url;
+    }
+
+    console.log('videoLink', videoLink);
+
     const video = this.videoRepository.create({
-      ...createVideoDto,
+      ...data,
+      videoLink: videoLink,
       createdBy: user,
     });
 

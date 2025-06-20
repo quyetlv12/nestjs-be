@@ -6,9 +6,9 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
-  Put,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CreatePermissionDto } from './dto/create-permission.dto';
@@ -38,7 +38,7 @@ export class PermissionsController {
     return this.permissionsService.findOne(+id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @Permissions('edit_permission')
   update(
     @Param('id') id: string,

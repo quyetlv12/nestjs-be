@@ -3,23 +3,21 @@ import { Permissions } from '@/common/decorators/permissions.decorator';
 import { PermissionsGuard } from '@/common/guards/permissions.guard';
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
-  Put,
   Query,
-  UseGuards,
-  UseInterceptors,
+  UseGuards
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateUserDto } from './dto/create-user.dto';
 
 
 @Controller('/api/users')
@@ -57,7 +55,7 @@ export class UsersController {
     return this.usersService.findOne(+id);
   }
 
-  @Put()
+  @Patch()
   @UseGuards(AuthGuard('jwt'), PermissionsGuard)
   @Permissions('update_user')
   async update(id: number, user: UpdateUserDto) {

@@ -1,3 +1,4 @@
+import { Permissions } from '@/common/decorators/permissions.decorator';
 import {
   Body,
   Controller,
@@ -6,14 +7,12 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  Patch,
   Post,
-  Put,
-  Query,
-  Patch
+  Query
 } from '@nestjs/common';
 import { UpdateTalentDto } from './dto/update-talent.dto';
 import { TalentsService } from './talents.service';
-import { Permissions } from '@/common/decorators/permissions.decorator';
 
 @Controller('/api/talents')
 export class TalentsController {
@@ -56,7 +55,7 @@ export class TalentsController {
     return this.talentsService.findOne(+id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @Permissions('update_talent')
   update(@Param('id') id: string, @Body() updateTalentDto: UpdateTalentDto) {
     return this.talentsService.update(+id, updateTalentDto);
@@ -73,7 +72,7 @@ export class TalentsController {
     return this.talentsService.findBySlug(slug);
   }
 
-  @Put(':id/approve')
+  @Patch(':id/approve')
   @Permissions('update_talent')
   approveTalent(@Param('id') id: string) {
     return this.talentsService.approveTalent(+id);

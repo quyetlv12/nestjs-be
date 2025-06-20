@@ -5,10 +5,13 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
-  Put,
+  UploadedFile,
   UseInterceptors
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { VideoService } from './videos.service';
@@ -17,8 +20,17 @@ import { VideoService } from './videos.service';
 export class VideosController {
   constructor(private readonly videoService: VideoService) {}
   @Post()
-  create(@Body() createVideoDto: CreateVideoDto) {
-    return this.videoService.create(createVideoDto);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(), // dùng RAM để đọc file
+      limits: { fileSize: 100 * 1024 * 1024 },
+    }),
+  )
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: CreateVideoDto,
+  ) {
+    return this.videoService.create({ ...body, file });
   }
   @Get()
   findAll() {
@@ -30,7 +42,7 @@ export class VideosController {
     return this.videoService.findOne(+id);
   }
 
-  @Put(':id')
+  @Patch(':id')
   update(@Param('id') id: string, @Body() updateVideoDto: UpdateVideoDto) {
     return this.videoService.update(+id, updateVideoDto);
   }

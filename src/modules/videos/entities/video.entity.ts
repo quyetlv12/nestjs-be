@@ -23,9 +23,6 @@ import {
     videoLink: string;
   
     @Column()
-    thumbnailLink: string;
-  
-    @Column()
     duration: string;
   
     // ✅ Thêm trường createdBy (User)

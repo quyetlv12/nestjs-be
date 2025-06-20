@@ -8,18 +8,11 @@ export class CreateVideoDto {
   title: string;
 
   @ApiProperty({
-    example: 'https://res.cloudinary.com/demo/video/upload/v123456/video.mp4',
+    example: 'đầy trường file từ formdata lên để upload lên cloudinary sau đó tự động gắn link vào trường này',
   })
   @IsNotEmpty()
   @IsString()
   videoLink: string;
-
-  @ApiProperty({
-    example: 'https://res.cloudinary.com/demo/image/upload/v123456/thumb.jpg',
-  })
-  @IsNotEmpty()
-  @IsString()
-  thumbnailLink: string;
 
   @ApiProperty({ example: '5:32', description: 'Thời lượng video (ví dụ: 5:32)' })
   @IsNotEmpty()

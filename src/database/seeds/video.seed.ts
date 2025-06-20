@@ -26,7 +26,6 @@ export const seedVideos = async (dataSource: DataSource) => {
     {
       title: 'Talent Music Video',
       videoLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      thumbnailLink: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
       duration: '3:30',
       createdBy: talent,
       createdById: talent.id,
