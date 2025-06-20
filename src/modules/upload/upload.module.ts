@@ -5,6 +5,7 @@ import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { UploadController } from './upload.controller';
 import { UploadService } from './upload.service';
+import { CloudinaryProvider } from '@/common/cloudinary.provider';
 
 @Module({
   imports: [
@@ -40,7 +41,7 @@ import { UploadService } from './upload.service';
     }),
   ],
   controllers: [UploadController],
-  providers: [UploadService],
-  exports: [UploadService],
+  providers: [UploadService, CloudinaryProvider],
+  exports: [UploadService, CloudinaryProvider],
 })
 export class UploadModule {} 
