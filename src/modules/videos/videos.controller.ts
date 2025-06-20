@@ -22,7 +22,7 @@ export class VideosController {
   @Post()
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: memoryStorage(), // dùng RAM để đọc file
+      storage: memoryStorage(),
       limits: { fileSize: 100 * 1024 * 1024 },
     }),
   )

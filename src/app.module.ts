@@ -13,6 +13,7 @@ import { TalentsModule } from './modules/talents/talents.module';
 import { VideosModule } from './modules/videos/videos.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { CommentsModule } from './modules/comments/comments.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CommentsModule } from './modules/comments/comments.module';
     VideosModule,
     UploadModule,
     CommentsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
