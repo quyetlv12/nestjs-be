@@ -29,20 +29,13 @@ export class CreateUserDto {
   @IsBoolean()
   availableFor24hDelivery?: boolean;
 
-  @IsOptional()
-  @IsDate()
-  lastCompletedVideoAt?: Date;
-
-  @IsOptional()
-  @IsString()
-  averageVideoLength?: string;
 
   @IsOptional()
   @IsString()
   description?: string;
 
   @IsOptional()
-  reasonsToGetAVideo?: any;
+  tags?: any;
 
   @IsOptional()
   @IsString()

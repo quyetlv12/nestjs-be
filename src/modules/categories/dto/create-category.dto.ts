@@ -9,6 +9,10 @@ export class CreateCategoryDto {
   @IsString()
   thumbnail: string;
 
+  @IsNotEmpty()
+  @IsString()
+  slug: string;
+
   @IsOptional()
   @IsInt()
   parentId?: number;

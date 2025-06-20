@@ -23,11 +23,27 @@ export class CategoryService {
       throw new Error('Thumbnail is required and must be a non-empty string');
     }
 
+    // Validate slug
+    if (!createCategoryDto.slug || typeof createCategoryDto.slug !== 'string' || createCategoryDto.slug.trim() === '') {
+      throw new Error('Slug is required and must be a non-empty string');
+    }
+
     // Validate parentId if present
     if (createCategoryDto.parentId !== undefined && createCategoryDto.parentId !== null) {
       if (typeof createCategoryDto.parentId !== 'number' || isNaN(createCategoryDto.parentId)) {
         throw new Error('parentId must be a number');
       }
+    }
+
+
+    const existingCategory = await this.categoryRepository.findOneBy({ name: createCategoryDto.name });
+    if (existingCategory) {
+      throw new Error('Category already exists');
+    }
+
+    const existingSlug = await this.categoryRepository.findOneBy({ slug: createCategoryDto.slug });
+    if (existingSlug) {
+      throw new Error('Slug already exists');
     }
 
     const category = this.categoryRepository.create(createCategoryDto);

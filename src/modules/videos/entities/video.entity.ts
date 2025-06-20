@@ -42,7 +42,7 @@ import {
     @UpdateDateColumn()
     updatedAt: Date;
   
-    @OneToMany(() => Comment, (comment) => comment.video)
+    @OneToMany(() => Comment, (comment) => comment.talent)
     comments: Comment[];
   }
   

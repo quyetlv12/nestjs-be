@@ -39,6 +39,13 @@ export class TalentsController {
     return this.talentsService.findAllTalent();
   }
 
+
+  @Get('/top10')
+  findTop10Talent() {
+    return this.talentsService.findTop10Talent();
+  }
+
+
   @Get('talent-by-business-id/:businessId')
   findTalentByBusinessId(@Param('businessId') businessId: string) {
     return this.talentsService.findTalentByBusinessId(+businessId);

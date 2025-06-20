@@ -44,17 +44,11 @@ export class User {
   @Column({ default: false })
   availableFor24hDelivery: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
-  lastCompletedVideoAt: Date;
-
-  @Column({ nullable: true })
-  averageVideoLength: string;
-
   @Column({ type: 'text', nullable: true })
   description: string;
 
   @Column({ type: 'json', nullable: true })
-  reasonsToGetAVideo: string[];
+  tags: string[];
 
   @Column({ type: 'int', nullable: true })
   price: number;
@@ -79,7 +73,7 @@ export class User {
     joinColumn: { name: 'user_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
   })
-  roles: Role[];
+  roles: any[];
 
   @ManyToMany(() => Category, (category) => category.users)
   @JoinTable({

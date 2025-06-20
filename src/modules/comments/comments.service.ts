@@ -18,10 +18,10 @@ export class CommentsService {
     return this.commentRepository.save(comment);
   }
 
-  async findAllByVideo(videoId: number): Promise<Comment[]> {
+  async findAllByTalent(talentId: number): Promise<Comment[]> {
     return this.commentRepository.find({
-      where: { videoId },
-      relations: ['user' , 'video'],
+      where: { talentId },
+      relations: ['user' , 'talent'],
     });
   }
 

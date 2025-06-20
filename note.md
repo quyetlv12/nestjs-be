@@ -38,3 +38,26 @@ BEGIN
     -- Re-enable constraints
     EXECUTE 'SET session_replication_role = origin';
 END $$;
+
+
+
+## xoá hết dữ liệu bảng 
+
+
+DO
+$$
+DECLARE
+    r RECORD;
+BEGIN
+    -- Tắt ràng buộc khóa ngoại tạm thời
+    EXECUTE 'SET session_replication_role = replica';
+
+    -- Lặp qua tất cả các bảng trong schema public
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+        EXECUTE 'TRUNCATE TABLE public.' || quote_ident(r.tablename) || ' RESTART IDENTITY CASCADE';
+    END LOOP;
+
+    -- Bật lại ràng buộc khóa ngoại
+    EXECUTE 'SET session_replication_role = DEFAULT';
+END
+$$;

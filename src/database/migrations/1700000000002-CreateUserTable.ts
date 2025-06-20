@@ -65,22 +65,12 @@ export class CreateUserTable1700000000002 implements MigrationInterface {
             default: false
           },
           {
-            name: "lastCompletedVideoAt",
-            type: "timestamp",
-            isNullable: true
-          },
-          {
-            name: "averageVideoLength",
-            type: "varchar",
-            isNullable: true
-          },
-          {
             name: "description",
             type: "text",
             isNullable: true
           },
           {
-            name: "reasonsToGetAVideo",
+            name: "tags",
             type: "json",
             isNullable: true,
           },

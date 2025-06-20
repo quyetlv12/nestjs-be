@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, IsEmail, IsBoolean, IsDate, IsArray, IsNumber, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsEmail, IsBoolean, IsDateString, IsArray, IsNumber, IsEnum } from 'class-validator';
 
 export class CreateTalentDto {
   @IsNotEmpty()
@@ -29,20 +29,13 @@ export class CreateTalentDto {
   @IsBoolean()
   availableFor24hDelivery?: boolean;
 
-  @IsOptional()
-  @IsDate()
-  lastCompletedVideoAt?: Date;
-
-  @IsOptional()
-  @IsString()
-  averageVideoLength?: string;
 
   @IsOptional()
   @IsString()
   description?: string;
 
   @IsOptional()
-  reasonsToGetAVideo?: any;
+  tags?: any;
 
   @IsOptional()
   @IsString()
@@ -67,5 +60,5 @@ export class CreateTalentDto {
   @IsOptional()
   @IsArray()
   @IsNumber({}, { each: true })
-  categories?: [];
+  categories?: any[];
 }

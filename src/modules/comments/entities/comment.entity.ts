@@ -10,17 +10,20 @@ export class Comment {
   @Column('text')
   content: string;
 
-  @ManyToOne(() => Video, (video) => video.comments, { onDelete: 'CASCADE' })
-  video: Video;
-
-  @Column()
-  videoId: number;
-
   @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
   user: User;
 
   @Column()
   userId: number;
+
+  @Column()
+  star: number;
+
+  @ManyToOne(() => User, (talent) => talent.comments, { onDelete: 'CASCADE' })
+  talent: User;
+
+  @Column()
+  talentId: number;
 
   @CreateDateColumn()
   createdAt: Date;

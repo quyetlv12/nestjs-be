@@ -12,9 +12,9 @@ export class CommentsController {
     return this.commentsService.create(createCommentDto);
   }
 
-  @Get('video/:videoId')
-  findAllByVideo(@Param('videoId') videoId: number) {
-    return this.commentsService.findAllByVideo(+videoId);
+  @Get('talent/:talentId')
+  findAllByTalent(@Param('talentId') talentId: number) {
+    return this.commentsService.findAllByTalent(+talentId);
   }
 
   @Put(':id')

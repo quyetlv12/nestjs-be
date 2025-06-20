@@ -16,7 +16,7 @@ export const seedVideos = async (dataSource: DataSource) => {
   }
 
   // Lấy category
-  const category = await categoryRepo.findOne({ where: { slug: 'music' } });
+  const category = await categoryRepo.findOne({ where: { id: 1 } });
   if (!category) {
     console.warn('⚠️ Category not found');
     return;

@@ -19,7 +19,12 @@ export class CreateCommentsTable1750090000000 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'videoId',
+            name: 'star',
+            type: 'int',
+            default: 0,
+          },
+          {
+            name: 'talentId',
             type: 'int',
             isNullable: false,
           },
@@ -46,8 +51,8 @@ export class CreateCommentsTable1750090000000 implements MigrationInterface {
     await queryRunner.createForeignKey(
       'comments',
       new TableForeignKey({
-        columnNames: ['videoId'],
-        referencedTableName: 'videos',
+        columnNames: ['talentId'],
+        referencedTableName: 'user',
         referencedColumnNames: ['id'],
         onDelete: 'CASCADE',
       })

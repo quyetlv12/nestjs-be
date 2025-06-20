@@ -5,9 +5,14 @@ export class CreateCommentDto {
   @IsString()
   content: string;
 
+
   @IsNotEmpty()
   @IsNumber()
-  videoId: number;
+  star: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  talentId: number;
 
   @IsNotEmpty()
   @IsNumber()

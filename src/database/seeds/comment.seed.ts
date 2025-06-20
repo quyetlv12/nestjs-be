@@ -9,10 +9,10 @@ export const seedComments = async (dataSource: DataSource) => {
   const videoRepo = dataSource.getRepository(Video);
 
   const user = await userRepo.findOne({ where: { email: 'user@example.com' } });
-  const video = await videoRepo.findOne({ where: { title: 'Talent Music Video' } });
+  const talent = await userRepo.findOne({ where: { email: 'talent@example.com' } });
 
-  if (!user || !video) {
-    console.warn('⚠️ User or video not found for comment seed');
+  if (!user || !talent) {
+    console.warn('⚠️ User or talent not found for comment seed');
     return;
   }
 
@@ -21,20 +21,22 @@ export const seedComments = async (dataSource: DataSource) => {
       content: 'Great video!',
       user,
       userId: user.id,
-      video,
-      videoId: video.id,
+      talent,
+      talentId: talent.id,
+      star: 5,
     },
     {
       content: 'Amazing performance!',
       user,
       userId: user.id,
-      video,
-      videoId: video.id,
+      talent,
+      talentId: talent.id,
+      star: 4,
     },
   ];
 
   for (const c of comments) {
-    const exists = await commentRepo.findOneBy({ content: c.content, userId: c.userId, videoId: c.videoId });
+    const exists = await commentRepo.findOneBy({ content: c.content, userId: c.userId, talentId: c.talentId });
     if (!exists) {
       await commentRepo.save(commentRepo.create(c));
       console.log(`✅ Seeded comment: ${c.content}`);

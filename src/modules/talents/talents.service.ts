@@ -65,6 +65,8 @@ export class TalentsService {
       categories: categories,
     });
 
+    
+
     return this.talentRepository.save(talent);
   }
 
@@ -111,10 +113,8 @@ export class TalentsService {
         createdAt: true,
         updatedAt: true,
         availableFor24hDelivery: true,
-        lastCompletedVideoAt: true,
-        averageVideoLength: true,
         description: true,
-        reasonsToGetAVideo: true,
+        tags: true,
         address: true,
         price: true,
         categories: true,
@@ -156,10 +156,8 @@ export class TalentsService {
         createdAt: true,
         updatedAt: true,
         availableFor24hDelivery: true,
-        lastCompletedVideoAt: true,
-        averageVideoLength: true,
         description: true,
-        reasonsToGetAVideo: true,
+        tags: true,
         address: true,
         roles: true,
       },
@@ -223,10 +221,8 @@ export class TalentsService {
         createdAt: true,
         updatedAt: true,
         availableFor24hDelivery: true,
-        lastCompletedVideoAt: true,
-        averageVideoLength: true,
         description: true,
-        reasonsToGetAVideo: true,
+        tags: true,
         address: true,
       },
     });
@@ -250,10 +246,8 @@ export class TalentsService {
         createdAt: true,
         updatedAt: true,
         availableFor24hDelivery: true,
-        lastCompletedVideoAt: true,
-        averageVideoLength: true, 
         description: true,
-        reasonsToGetAVideo: true,
+        tags: true,
         address: true,
         nick_name: true,
         price: true,
@@ -271,5 +265,14 @@ export class TalentsService {
     }
     talent.status = 'active';
     return this.talentRepository.save(talent);
+  }
+
+
+  async findTop10Talent() {
+    return this.talentRepository.find({
+      where: { roles: { name: 'talent' } },
+      order: { createdAt: 'DESC' },
+      take: 10,
+    });
   }
 }
