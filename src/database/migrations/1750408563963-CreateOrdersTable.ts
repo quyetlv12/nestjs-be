@@ -1,8 +1,8 @@
 import {
-    MigrationInterface,
-    QueryRunner,
-    Table,
-    TableForeignKey,
+  MigrationInterface,
+  QueryRunner,
+  Table,
+  TableForeignKey,
 } from 'typeorm';
 
 export class CreateOrdersTable1750408563963 implements MigrationInterface {
@@ -31,7 +31,8 @@ export class CreateOrdersTable1750408563963 implements MigrationInterface {
             name: 'video_protocol_method',
             type: 'enum',
             enum: ['7days', '24hours'],
-            default: '24hours',
+            enumName: 'orders_video_protocol_method_enum',
+            default: `'24hours'`,
             comment: 'Phương thức giao video',
           },
           {
@@ -40,22 +41,17 @@ export class CreateOrdersTable1750408563963 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'videoId',
-            type: 'int',
-            isNullable: false,
-          },
-          {
             name: 'recipient',
             type: 'enum',
             enum: ['someone_else', 'myself'],
-            default: 'someone_else',
+            enumName: 'orders_recipient_enum',
+            default: `'someone_else'`,
             comment: 'Who is the video for?',
           },
           {
             name: 'for_gender',
             type: 'varchar',
           },
-
           {
             name: 'status',
             type: 'enum',
@@ -68,7 +64,8 @@ export class CreateOrdersTable1750408563963 implements MigrationInterface {
               'refunded',
               'rejected',
             ],
-            default: 'pending',
+            enumName: 'orders_status_enum',
+            default: `'pending'`,
           },
           {
             name: 'price',
@@ -86,29 +83,27 @@ export class CreateOrdersTable1750408563963 implements MigrationInterface {
           {
             name: 'paymentDate',
             type: 'timestamp',
+            isNullable: true,
           },
           {
             name: 'request_details',
             type: 'varchar',
           },
           {
-            name: 'video_link',
+            name: 'example_video_link',
             type: 'varchar',
             isNullable: true,
           },
-
           {
             name: 'video_from',
             type: 'varchar',
             comment: 'Who is the video from?',
           },
-
           {
             name: 'video_from_gender',
             type: 'varchar',
             comment: 'Who is the video from gender?',
           },
-
           {
             name: 'hide_video_from',
             type: 'boolean',
@@ -118,6 +113,11 @@ export class CreateOrdersTable1750408563963 implements MigrationInterface {
           {
             name: 'userId',
             type: 'int',
+            isNullable: false,
+          },
+          {
+            name: 'video_link',
+            type: 'varchar',
             isNullable: false,
           },
           {
@@ -135,38 +135,26 @@ export class CreateOrdersTable1750408563963 implements MigrationInterface {
       }),
     );
 
-    await queryRunner.createForeignKey(
-      'orders',
+    await queryRunner.createForeignKeys('orders', [
       new TableForeignKey({
         columnNames: ['talentId'],
         referencedTableName: 'user',
         referencedColumnNames: ['id'],
         onDelete: 'CASCADE',
       }),
-    );
-
-    await queryRunner.createForeignKey(
-      'orders',
       new TableForeignKey({
         columnNames: ['userId'],
         referencedTableName: 'user',
         referencedColumnNames: ['id'],
         onDelete: 'CASCADE',
       }),
-    );
-
-    await queryRunner.createForeignKey(
-      'orders',
-      new TableForeignKey({
-        columnNames: ['videoId'],
-        referencedTableName: 'videos',
-        referencedColumnNames: ['id'],
-        onDelete: 'CASCADE',
-      }),
-    );
+    ]);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('comments');
+    await queryRunner.dropTable('orders');
+    await queryRunner.query(`DROP TYPE IF EXISTS "orders_video_protocol_method_enum"`);
+    await queryRunner.query(`DROP TYPE IF EXISTS "orders_recipient_enum"`);
+    await queryRunner.query(`DROP TYPE IF EXISTS "orders_status_enum"`);
   }
 }

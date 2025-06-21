@@ -5,15 +5,19 @@ import { seedCategories } from './category.seed';
 import { seedVideos } from './video.seed';
 import { seedComments } from './comment.seed';
 import { seedTalents } from './talent.seed';
+import { seedOrders } from './order.seed';
+import { seedPermissions } from './permission.seed';
 
 dataSource.initialize().then(async () => {
   console.log('🔁 Running seeders...');
+  await seedPermissions(dataSource);
   await seedRolesAndPermissions(dataSource);
   await seedUsers(dataSource);
   await seedCategories(dataSource);
   await seedVideos(dataSource);
   await seedComments(dataSource);
   await seedTalents(dataSource);
+  await seedOrders(dataSource);
   await dataSource.destroy();
   console.log('🌱 Done seeding');
 }).catch((err) => {

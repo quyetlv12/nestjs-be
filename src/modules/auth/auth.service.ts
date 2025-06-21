@@ -86,12 +86,21 @@ export class AuthService {
       const permissions = user.roles.reduce((acc, role) => {
         return acc.concat(role.permissions.map((permission) => permission.name));
       }, [] as string[]);
-      const tokenData = {
+
+
+
+      console.log("user login" , user);
+
+      
+      const tokenData = {        
         email : user.email,
         phone : user.phone,
-        name : user.name,
+        nickname : user.nick_name,
+        id : user.id,
         permissions
       };
+      console.log("tokenData" , tokenData);
+      
       const token = this.jwtService.sign(tokenData, {
         algorithm: 'HS256'
       });

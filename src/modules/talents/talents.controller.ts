@@ -9,16 +9,20 @@ import {
   Param,
   Patch,
   Post,
-  Query
+  Query,
+  UseGuards
 } from '@nestjs/common';
 import { UpdateTalentDto } from './dto/update-talent.dto';
 import { TalentsService } from './talents.service';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '@/common/guards/permissions.guard';
 
 @Controller('/api/talents')
 export class TalentsController {
   constructor(private readonly talentsService: TalentsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Permissions('create_talent')
   create(@Body() createTalentDto: any) {
    try {    
@@ -56,12 +60,14 @@ export class TalentsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Permissions('update_talent')
   update(@Param('id') id: string, @Body() updateTalentDto: UpdateTalentDto) {
     return this.talentsService.update(+id, updateTalentDto);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Permissions('delete_talent')
   remove(@Param('id') id: string) {
     return this.talentsService.remove(+id);
@@ -73,6 +79,7 @@ export class TalentsController {
   }
 
   @Patch(':id/approve')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Permissions('update_talent')
   approveTalent(@Param('id') id: string) {
     return this.talentsService.approveTalent(+id);

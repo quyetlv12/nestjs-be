@@ -20,15 +20,34 @@ async function bootstrap() {
 
   app.enableCors({
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('VietSocial Backend API')
+    .setDescription('API documentation for VietSocial Backend')
     .setVersion('1.0')
-    .addTag('cats')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth', // This name here is important for references
+    )
+    .addTag('auth', 'Authentication endpoints')
+    .addTag('users', 'User management')
+    .addTag('orders', 'Order management')
+    .addTag('videos', 'Video management')
+    .addTag('talents', 'Talent management')
+    .addTag('categories', 'Category management')
+    .addTag('comments', 'Comment management')
+    .addTag('roles', 'Role management')
+    .addTag('permissions', 'Permission management')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
