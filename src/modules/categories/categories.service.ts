@@ -110,6 +110,15 @@ export class CategoryService {
     const category = await this.findOne(id);
 
     if (updateDto.name) category.name = updateDto.name;
+    if (updateDto.thumbnail) category.thumbnail = updateDto.thumbnail;
+    if (updateDto.slug) {
+      const existingSlug = await this.categoryRepository.findOneBy({ slug: updateDto.slug });
+      if (existingSlug && existingSlug.id !== id) {
+        throw new Error('Slug already exists');
+      }
+      category.slug = updateDto.slug;
+    }
+    if (updateDto.description !== undefined) category.description = updateDto.description;
 
     if (updateDto.parentId !== undefined) {
       if (updateDto.parentId === null) {

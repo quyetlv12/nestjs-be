@@ -25,16 +25,23 @@ export class TalentsController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Permissions('create_talent')
   create(@Body() createTalentDto: any) {
-   try {    
-    return this.talentsService.create(createTalentDto);
-   } catch (error) {
-    throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-   }
+    try {
+      return this.talentsService.create(createTalentDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Get()
-  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10 , @Query('categoryId') categoryId: string , @Query('price') price: string , @Query('name') name: string) {
-    return this.talentsService.findAll(page, limit , categoryId , price , name);
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('categoryId') categoryId: string,
+    @Query('price') price: string,
+    @Query('name') name: string,
+    @Query('status') status: "active" | "inactive" | "pending" 
+  ) {
+    return this.talentsService.findAll(page, limit, categoryId, price, name, status);
   }
 
   @Get('/all')
@@ -42,12 +49,10 @@ export class TalentsController {
     return this.talentsService.findAllTalent();
   }
 
-
   @Get('/top10')
   findTop10Talent() {
     return this.talentsService.findTop10Talent();
   }
-
 
   @Get('talent-by-business-id/:businessId')
   findTalentByBusinessId(@Param('businessId') businessId: string) {
@@ -83,5 +88,11 @@ export class TalentsController {
   @Permissions('update_talent')
   approveTalent(@Param('id') id: string) {
     return this.talentsService.approveTalent(+id);
+  }
+
+  @Patch(':id/reject')
+  @Permissions('update_talent')
+  rejectTalent(@Param('id') id: string) {
+    return this.talentsService.rejectTalent(+id);
   }
 }

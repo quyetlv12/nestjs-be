@@ -73,4 +73,19 @@ export class UsersController {
   async findByNickName(@Param('nickName') nickName: string) {
     return this.usersService.findByNickName(nickName);
   }
+
+  @Patch('lock/:id')
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @Permissions('update_user')
+  async lockUser(@Param('id') id: string) {
+    return this.usersService.lockUser(+id);
+  }
+
+  @Patch('unlock/:id')
+  @UseGuards(AuthGuard('jwt'), PermissionsGuard)
+  @Permissions('update_user')
+  async unlockUser(@Param('id') id: string) {
+    return this.usersService.unlockUser(+id);
+  }
+
 }
