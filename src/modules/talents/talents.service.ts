@@ -264,6 +264,7 @@ export class TalentsService {
         roles: true,
         categories: true,
         videos: true,
+        avatar: true,
       },
     });
   }
