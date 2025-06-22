@@ -1,15 +1,13 @@
 // api/index.ts
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import serverlessExpress from '@vendia/serverless-express';
-import { createNestApplication } from '../src/app.factory';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { writeFileSync } from 'fs';
+import { createNestApplication } from '../app.factory';
 
 let cachedHandler: any;
 
 async function bootstrap() {
   const app = await createNestApplication();
 
-  // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('VietSocial Backend API')
     .setDescription('API documentation for VietSocial Backend')
@@ -23,14 +21,14 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  writeFileSync('./swagger.json', JSON.stringify(document));
 
-  return serverlessExpress({ app: app.getHttpAdapter().getInstance() });
+  const expressInstance = app.getHttpAdapter().getInstance();
+  return serverlessExpress({ app: expressInstance });
 }
 
 export const handler = async (event, context) => {
   if (!cachedHandler) {
-    cachedHandler = await bootstrap();
+    cachedHandler = await bootstrap(); // init 1 lần
   }
   return cachedHandler(event, context);
 };
