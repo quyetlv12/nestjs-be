@@ -47,6 +47,9 @@ export class User {
   @Column({ type: 'text', nullable: true })
   description: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  avatar: string;
+
   @Column({ type: 'json', nullable: true })
   tags: string[];
 

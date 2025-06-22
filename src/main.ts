@@ -64,3 +64,9 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 4000);
 }
 bootstrap();
+
+
+export async function createNestApplication() {
+  const app = await NestFactory.create(AppModule);
+  return app;
+}

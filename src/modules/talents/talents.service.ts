@@ -125,6 +125,7 @@ export class TalentsService {
         categories: true,
         status: true,
         nick_name: true,
+        avatar: true,
       },
       skip,
       take: limit,
@@ -167,6 +168,7 @@ export class TalentsService {
         tags: true,
         address: true,
         roles: true,
+        avatar: true,
       },
     });
   }
@@ -231,6 +233,7 @@ export class TalentsService {
         description: true,
         tags: true,
         address: true,
+        avatar: true,
       },
     });
   }
