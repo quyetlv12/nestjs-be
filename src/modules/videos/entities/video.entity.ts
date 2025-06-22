@@ -1,4 +1,4 @@
-import { User } from '@/modules/users/user.entity';
+import { User } from '../../users/user.entity';
 import { Comment } from '../../comments/entities/comment.entity';
 import {
     Entity,

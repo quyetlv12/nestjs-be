@@ -5,11 +5,18 @@ import { Video } from './entities/video.entity';
 import { User } from '../users/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommentsModule } from '../comments/comments.module';
+import { JwtTokenService } from 'src/common/services/jwt.service';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { PermissionsGuard } from 'src/common/guards/permissions.guard';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Video , User]), CommentsModule],
+  imports: [TypeOrmModule.forFeature([Video , User]), CommentsModule , JwtModule.register({
+    secret: 'mysecret',
+    signOptions: { expiresIn: '7d' },
+  })],
   exports: [VideoService],
   controllers: [VideosController],
-  providers: [VideoService],
+  providers: [VideoService, JwtTokenService, JwtAuthGuard, PermissionsGuard],
 })
 export class VideosModule {}

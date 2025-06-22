@@ -1,7 +1,7 @@
-import { Category } from '@/modules/categories/entities/category.entity';
-import { Role } from '@/modules/roles/entities/role.entity';
-import { CreateTalentDto } from '@/modules/talents/dto/create-talent.dto';
-import { User } from '@/modules/users/user.entity';
+import { Category } from '../../modules/categories/entities/category.entity';
+import { Role } from '../../modules/roles/entities/role.entity';
+import { CreateTalentDto } from '../../modules/talents/dto/create-talent.dto';
+import { User } from '../../modules/users/user.entity';
 import { DataSource, In } from 'typeorm';
 
 export const seedTalents = async (dataSource: DataSource) => {

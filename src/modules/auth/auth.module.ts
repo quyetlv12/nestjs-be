@@ -1,4 +1,4 @@
-import { Role } from '@/modules/roles/entities/role.entity';
+import { Role } from '../../modules/roles/entities/role.entity';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';

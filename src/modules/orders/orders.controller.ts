@@ -17,12 +17,12 @@ import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
-import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
-import { PermissionsGuard } from '@/common/guards/permissions.guard';
-import { Permissions } from '@/common/decorators/permissions.decorator';
-import { CurrentUser } from '@/common/decorators/current-user.decorator';
-import { Token } from '@/common/decorators/token.decorator';
-import { JwtTokenService } from '@/common/services/jwt.service';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
+import { Permissions } from '../../common/decorators/permissions.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Token } from '../../common/decorators/token.decorator';
+import { JwtTokenService } from '../../common/services/jwt.service';
 
 @ApiTags('orders')
 @ApiBearerAuth()

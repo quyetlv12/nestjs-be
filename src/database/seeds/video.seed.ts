@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
-import { Video } from '@/modules/videos/entities/video.entity';
-import { User } from '@/modules/users/user.entity';
-import { Category } from '@/modules/categories/entities/category.entity';
+import { Video } from '../../modules/videos/entities/video.entity';
+import { User } from '../../modules/users/user.entity';
+import { Category } from '../../modules/categories/entities/category.entity';
 
 export const seedVideos = async (dataSource: DataSource) => {
   const videoRepo = dataSource.getRepository(Video);

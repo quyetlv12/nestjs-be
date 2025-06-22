@@ -1,5 +1,5 @@
-import { Permission } from '@/modules/permissions/entities/permission.entity';
-import { Role } from '@/modules/roles/entities/role.entity';
+import { Permission } from '../../modules/permissions/entities/permission.entity';
+import { Role } from '../../modules/roles/entities/role.entity';
 import { DataSource } from 'typeorm';
 
 export const seedRolesAndPermissions = async (dataSource: DataSource) => {

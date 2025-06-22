@@ -1,4 +1,4 @@
-import { Permissions } from '@/common/decorators/permissions.decorator';
+import { Permissions } from '../../common/decorators/permissions.decorator';
 import {
   Body,
   Controller,
@@ -14,8 +14,8 @@ import {
 } from '@nestjs/common';
 import { UpdateTalentDto } from './dto/update-talent.dto';
 import { TalentsService } from './talents.service';
-import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
-import { PermissionsGuard } from '@/common/guards/permissions.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
 
 @Controller('/api/talents')
 export class TalentsController {

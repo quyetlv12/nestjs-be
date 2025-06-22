@@ -1,5 +1,5 @@
-import { Order, OrderStatus, RecipientType, VideoProtocolMethod } from '@/modules/orders/entities/order.entity';
-import { User } from '@/modules/users/user.entity';
+import { Order, OrderStatus, RecipientType, VideoProtocolMethod } from '../../modules/orders/entities/order.entity';
+import { User } from '../../modules/users/user.entity';
 import { DataSource } from 'typeorm';
 
 export const seedOrders = async (dataSource: DataSource) => {

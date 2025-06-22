@@ -1,4 +1,4 @@
-import { PermissionsGuard } from '@/common/guards/permissions.guard';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Permission } from './entities/permission.entity';

@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
-import { Comment } from '@/modules/comments/entities/comment.entity';
-import { User } from '@/modules/users/user.entity';
-import { Video } from '@/modules/videos/entities/video.entity';
+import { Comment } from '../../modules/comments/entities/comment.entity';
+import { User } from '../../modules/users/user.entity';
+import { Video } from '../../modules/videos/entities/video.entity';
 
 export const seedComments = async (dataSource: DataSource) => {
   const commentRepo = dataSource.getRepository(Comment);

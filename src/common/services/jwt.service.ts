@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
-import { JwtPayload } from '@/modules/auth/jwt.strategy';
+import { JwtPayload } from 'src/modules/auth/jwt.strategy';
 
 export interface TokenData {
   userId: number;
