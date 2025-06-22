@@ -21,4 +21,9 @@ export class CreateCategoryDto {
   @IsOptional()
   @IsInt()
   parentId?: number;
+
+  @ApiPropertyOptional({ example: 'description' })
+  @IsOptional()
+  @IsString()
+  description?: string;
 }

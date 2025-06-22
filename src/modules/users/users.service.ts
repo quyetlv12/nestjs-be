@@ -82,4 +82,24 @@ export class UsersService {
   async remove(id: number) {
     return this.userRepository.delete(id);
   }
+
+  async lockUser(id: number) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+    
+    user.status = 'inactive';
+    return this.userRepository.save(user);
+  }
+
+  async unlockUser(id: number) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+    
+    user.status = 'active';
+    return this.userRepository.save(user);
+  }
 }

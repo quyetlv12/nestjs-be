@@ -76,6 +76,7 @@ export class TalentsService {
     categoryId: string,
     price: string,
     name: string,
+    status: string,
   ) {
     const skip = (page - 1) * limit;
     const where: any = {
@@ -88,6 +89,10 @@ export class TalentsService {
 
     if (categoryId) {
       where.categories = { id: +categoryId };
+    }
+
+    if (status) {
+      where.status = status;
     }
 
     if (price) {
@@ -118,6 +123,8 @@ export class TalentsService {
         address: true,
         price: true,
         categories: true,
+        status: true,
+        nick_name: true,
       },
       skip,
       take: limit,
@@ -267,6 +274,14 @@ export class TalentsService {
     return this.talentRepository.save(talent);
   }
 
+  async rejectTalent(id: number) {
+    const talent = await this.talentRepository.findOne({ where: { id } });
+    if (!talent) {
+      throw new Error(`Talent with ID ${id} not found`);
+    }
+    talent.status = 'inactive';
+    return this.talentRepository.save(talent);
+  }
 
   async findTop10Talent() {
     return this.talentRepository.find({

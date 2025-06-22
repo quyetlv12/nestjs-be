@@ -5,6 +5,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import { QueryFailedFilter } from './common/query-failed.filter';
+import { writeFileSync } from 'fs';
+import { Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -20,7 +22,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
@@ -52,6 +54,12 @@ async function bootstrap() {
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
+
+  writeFileSync('./swagger.json', JSON.stringify(documentFactory()));
+
+  app.getHttpAdapter().get('/swagger-json', (req, res: Response) => {
+    res.type('application/json').send(documentFactory());
+  });
 
   await app.listen(process.env.PORT || 4000);
 }
