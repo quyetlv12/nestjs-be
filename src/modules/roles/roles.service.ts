@@ -24,7 +24,7 @@ export class RolesService {
     });
 
     if (roleFind) {
-      throw new NotFoundException(400, `Role with name ${name} already exists`);
+      throw new NotFoundException(400, `Vai trò với tên ${name} đã tồn tại`);
     }
 
     const permissions = permissionIds
@@ -54,7 +54,7 @@ export class RolesService {
     });
 
     if (!role) {
-      throw new NotFoundException(`Role with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy vai trò với ID ${id}`);
     }
 
     return role;
@@ -67,7 +67,7 @@ export class RolesService {
     });
 
     if (!role) {
-      throw new NotFoundException(`Role with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy vai trò với ID ${id}`);
     }
 
     const { name, description, permissionIds } = updateRoleDto;
@@ -89,7 +89,7 @@ export class RolesService {
     const role = await this.roleRepository.findOneBy({ id });
 
     if (!role) {
-      throw new NotFoundException(`Role with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy vai trò với ID ${id}`);
     }
 
     await this.roleRepository.remove(role);

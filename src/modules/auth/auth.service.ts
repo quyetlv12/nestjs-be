@@ -66,7 +66,7 @@ export class AuthService {
         relations: ['roles', 'roles.permissions'],
       });
       if (!user) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Thông tin đăng nhập không hợp lệ');
       }
 
       if (user.status === 'pending') {
@@ -78,7 +78,7 @@ export class AuthService {
         user.password,
       );
       if (!isPasswordValid) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new UnauthorizedException('Thông tin đăng nhập không hợp lệ');
       }
 
       const _user = _.omit(user, ['password']);

@@ -47,7 +47,7 @@ export class JwtTokenService {
         secret: 'mysecret',
       });
     } catch (error) {
-      throw new Error('Invalid token');
+      throw new Error('Token không hợp lệ');
     }
   }
 

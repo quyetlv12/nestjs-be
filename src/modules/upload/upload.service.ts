@@ -20,7 +20,7 @@ export class UploadService {
     } else if (mimetype.startsWith('video/')) {
       return 'video';
     }
-    throw new Error('Unsupported file type');
+    throw new Error('Định dạng tệp không được hỗ trợ');
   }
   async uploadImageCloudinary(
     file: Express.Multer.File,

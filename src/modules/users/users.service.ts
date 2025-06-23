@@ -55,16 +55,16 @@ export class UsersService {
   async create(userData: CreateTalentDto) {
     // Validate email format
     if (!userData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)) {
-      throw new Error('Invalid email format');
+      throw new Error('Định dạng email không hợp lệ');
     }
     
     // Validate required fields
     if (!userData.password) {
-      throw new Error('Password is required');
+      throw new Error('Mật khẩu là bắt buộc');
     }
 
     if (!userData.name) {
-      throw new Error('Username is required');
+      throw new Error('Tên người dùng là bắt buộc');
     }
 
     const bcrypt = require('bcrypt');
@@ -86,7 +86,7 @@ export class UsersService {
   async lockUser(id: number) {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
-      throw new Error(`User with ID ${id} not found`);
+      throw new Error(`Không tìm thấy người dùng với ID ${id}`);
     }
     
     user.status = 'inactive';
@@ -96,7 +96,7 @@ export class UsersService {
   async unlockUser(id: number) {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
-      throw new Error(`User with ID ${id} not found`);
+      throw new Error(`Không tìm thấy người dùng với ID ${id}`);
     }
     
     user.status = 'active';

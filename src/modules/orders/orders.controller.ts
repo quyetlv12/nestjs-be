@@ -190,7 +190,7 @@ export class OrdersController {
     // Kiểm tra quyền: chỉ cho phép xem order của chính mình hoặc admin
     if (order.userId !== tokenData.userId && !this.jwtTokenService.hasPermission(token, 'view_all_orders')) {
       console.log(`Access denied: User ${tokenData.userId} cannot view order ${id} (belongs to user ${order.userId})`);
-      throw new Error('Unauthorized to view this order');
+      throw new Error('Bạn không có quyền xem đơn hàng này');
     }
     
     console.log(`Access granted: User ${tokenData.userId} viewing order ${id}`);
@@ -228,7 +228,7 @@ export class OrdersController {
     // Kiểm tra quyền: chỉ cho phép cập nhật order của chính mình hoặc admin
     if (order.userId !== tokenData.userId && !this.jwtTokenService.hasPermission(token, 'update_all_orders')) {
       console.log(`Access denied: User ${tokenData.userId} cannot update order ${id} (belongs to user ${order.userId})`);
-      throw new Error('Unauthorized to update this order');
+      throw new Error('Bạn không có quyền cập nhật đơn hàng này');
     }
     
     console.log(`Access granted: User ${tokenData.userId} updating order ${id}`);
@@ -266,7 +266,7 @@ export class OrdersController {
     // Chỉ admin hoặc talent mới có thể cập nhật status
     if (!this.jwtTokenService.hasPermission(token, 'update_order_status')) {
       console.log(`Access denied: User ${tokenData.userId} cannot update order status`);
-      throw new Error('Unauthorized to update order status');
+      throw new Error('Bạn không có quyền cập nhật trạng thái đơn hàng');
     }
     
     console.log(`Access granted: User ${tokenData.userId} updating order ${id} status to ${status}`);
@@ -304,7 +304,7 @@ export class OrdersController {
     // Chỉ admin mới có thể cập nhật payment status
     if (!this.jwtTokenService.hasPermission(token, 'admin')) {
       console.log(`Access denied: User ${tokenData.userId} cannot update payment status`);
-      throw new Error('Unauthorized to update payment status');
+      throw new Error('Bạn không có quyền cập nhật trạng thái thanh toán');
     }
     
     console.log(`Access granted: Admin ${tokenData.userId} updating order ${id} payment status to ${paymentStatus}`);
@@ -343,7 +343,7 @@ export class OrdersController {
     if (!this.jwtTokenService.hasPermission(token, 'update_video_link') && 
         !this.jwtTokenService.hasPermission(token, 'admin')) {
       console.log(`Access denied: User ${tokenData.userId} cannot update video link`);
-      throw new Error('Unauthorized to update video link');
+      throw new Error('Bạn không có quyền cập nhật link video');
     }
     
     console.log(`Access granted: User ${tokenData.userId} updating video link for order ${id}`);
@@ -380,7 +380,7 @@ export class OrdersController {
     // Kiểm tra quyền: chỉ cho phép xóa order của chính mình hoặc admin
     if (order.userId !== tokenData.userId && !this.jwtTokenService.hasPermission(token, 'delete_all_orders')) {
       console.log(`Access denied: User ${tokenData.userId} cannot delete order ${id} (belongs to user ${order.userId})`);
-      throw new Error('Unauthorized to delete this order');
+      throw new Error('Bạn không có quyền xóa đơn hàng này');
     }
     
     console.log(`Access granted: User ${tokenData.userId} deleting order ${id}`);

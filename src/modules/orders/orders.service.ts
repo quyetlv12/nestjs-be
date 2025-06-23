@@ -40,7 +40,7 @@ export class OrdersService {
     });
 
     if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy đơn hàng với ID ${id}`);
     }
 
     return order;

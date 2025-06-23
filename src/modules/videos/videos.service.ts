@@ -68,7 +68,7 @@ export class VideoService {
       relations: ['createdBy'],
     });
     if (!video) {
-      throw new NotFoundException(`Video with ID ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy video với ID ${id}`);
     }
     return video;
   }

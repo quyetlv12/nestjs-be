@@ -31,7 +31,7 @@ export class CommentsService {
   ): Promise<Comment> {
     //kiểm tra người cập nhật có phải là người tạo comment không
     const comment = await this.commentRepository.findOne({ where: { id } });
-    if (!comment) throw new NotFoundException('Comment not found');
+    if (!comment) throw new NotFoundException('Không tìm thấy bình luận');
     Object.assign(comment, updateCommentDto);
     return this.commentRepository.save(comment);
   }
@@ -39,7 +39,7 @@ export class CommentsService {
   async remove(id: number): Promise<void> {
     //kiểm tra người xoá có phải là người tạo comment không
     const comment = await this.commentRepository.findOne({ where: { id } });
-    if (!comment) throw new NotFoundException('Comment not found');
+    if (!comment) throw new NotFoundException('Không tìm thấy bình luận');
     await this.commentRepository.remove(comment);
   }
 }

@@ -15,35 +15,35 @@ export class CategoryService {
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {    
     // Validate name
     if (!createCategoryDto.name || typeof createCategoryDto.name !== 'string' || createCategoryDto.name.trim() === '') {
-      throw new Error('Name is required and must be a non-empty string');
+      throw new Error('Tên là bắt buộc và không được để trống');
     }
 
     // Validate thumbnail
     if (!createCategoryDto.thumbnail || typeof createCategoryDto.thumbnail !== 'string' || createCategoryDto.thumbnail.trim() === '') {
-      throw new Error('Thumbnail is required and must be a non-empty string');
+      throw new Error('Ảnh đại diện là bắt buộc và không được để trống');
     }
 
     // Validate slug
     if (!createCategoryDto.slug || typeof createCategoryDto.slug !== 'string' || createCategoryDto.slug.trim() === '') {
-      throw new Error('Slug is required and must be a non-empty string');
+      throw new Error('Slug là bắt buộc và không được để trống');
     }
 
     // Validate parentId if present
     if (createCategoryDto.parentId !== undefined && createCategoryDto.parentId !== null) {
       if (typeof createCategoryDto.parentId !== 'number' || isNaN(createCategoryDto.parentId)) {
-        throw new Error('parentId must be a number');
+        throw new Error('parentId phải là một số');
       }
     }
 
 
     const existingCategory = await this.categoryRepository.findOneBy({ name: createCategoryDto.name });
     if (existingCategory) {
-      throw new Error('Category already exists');
+      throw new Error('Danh mục đã tồn tại');
     }
 
     const existingSlug = await this.categoryRepository.findOneBy({ slug: createCategoryDto.slug });
     if (existingSlug) {
-      throw new Error('Slug already exists');
+      throw new Error('Slug đã tồn tại');
     }
 
     const category = this.categoryRepository.create(createCategoryDto);
@@ -52,7 +52,7 @@ export class CategoryService {
     if (createCategoryDto.parentId) {
       const parent = await this.categoryRepository.findOneBy({ id: createCategoryDto.parentId });
       if (!parent) {
-        throw new NotFoundException('Parent category not found');
+        throw new NotFoundException('Không tìm thấy danh mục cha');
       }
       category.parent = parent;
     }
@@ -73,7 +73,7 @@ export class CategoryService {
     });
 
     if (!category) {
-      throw new NotFoundException(`Category with slug ${id} not found`);
+      throw new NotFoundException(`Không tìm thấy danh mục với slug ${id}`);
     }
 
     return category;
@@ -88,7 +88,7 @@ export class CategoryService {
     });
 
     if (!category) {
-      throw new NotFoundException(`Category with slug ${slug} not found`);
+      throw new NotFoundException(`Không tìm thấy danh mục với slug ${slug}`);
     }
 
     return category;
@@ -97,13 +97,13 @@ export class CategoryService {
   async update(id: number, updateDto: UpdateCategoryDto): Promise<Category> {
     // Validate: name không được rỗng nếu truyền vào
     if ('name' in updateDto && (!updateDto.name || updateDto.name.trim() === '')) {
-      throw new Error('Name is required');
+      throw new Error('Tên là bắt buộc');
     }
 
     // Validate: parentId nếu truyền vào phải là số nguyên dương hoặc null
     if ('parentId' in updateDto && updateDto.parentId !== null && updateDto.parentId !== undefined) {
       if (typeof updateDto.parentId !== 'number' || updateDto.parentId <= 0 || !Number.isInteger(updateDto.parentId)) {
-        throw new Error('parentId must be a positive integer or null');
+        throw new Error('parentId phải là số nguyên dương hoặc null');
       }
     }
 
@@ -114,7 +114,7 @@ export class CategoryService {
     if (updateDto.slug) {
       const existingSlug = await this.categoryRepository.findOneBy({ slug: updateDto.slug });
       if (existingSlug && existingSlug.id !== id) {
-        throw new Error('Slug already exists');
+        throw new Error('Slug đã tồn tại');
       }
       category.slug = updateDto.slug;
     }
@@ -125,7 +125,7 @@ export class CategoryService {
         category.parent = undefined;
       } else {
         const parent = await this.categoryRepository.findOneBy({ id: updateDto.parentId });
-        if (!parent) throw new NotFoundException('Parent category not found');
+        if (!parent) throw new NotFoundException('Không tìm thấy danh mục cha');
         category.parent = parent;
       }
     }

@@ -28,13 +28,13 @@ export class TalentsService {
     });
 
     if (existingTalent) {
-      throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Email đã tồn tại', HttpStatus.BAD_REQUEST);
     }
     const existingNickName = await this.talentRepository.findOne({
       where: { nick_name: createTalentDto.nick_name },
     });
     if (existingNickName) {
-      throw new HttpException('Nick name already exists', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Biệt danh đã tồn tại', HttpStatus.BAD_REQUEST);
     }
 
     // Hash password
@@ -180,7 +180,7 @@ export class TalentsService {
 
     const talent = await this.talentRepository.findOne({ where: { id } });
     if (!talent) {
-      throw new Error(`Talent with ID ${id} not found`);
+      throw new Error(`Không tìm thấy talent với ID ${id}`);
     }
 
     // Kiểm tra trùng name nếu name thay đổi
@@ -189,7 +189,7 @@ export class TalentsService {
         where: { name: updateTalentDto.name },
       });
       if (existingByName) {
-        throw new Error(`Name '${updateTalentDto.name}' is already taken`);
+        throw new Error(`Tên "${updateTalentDto.name}" đã được sử dụng`);
       }
     }
 
@@ -209,7 +209,7 @@ export class TalentsService {
       if (error.code === '23505' && error.detail) {
         throw new Error(error.detail);
       }
-      throw error;
+      throw new Error('Lỗi hệ thống');
     }
   }
 
@@ -273,7 +273,7 @@ export class TalentsService {
   async approveTalent(id: number) {
     const talent = await this.talentRepository.findOne({ where: { id } });
     if (!talent) {
-      throw new Error(`Talent with ID ${id} not found`);
+      throw new Error(`Không tìm thấy talent với ID ${id}`);
     }
     talent.status = 'active';
     return this.talentRepository.save(talent);
@@ -282,7 +282,7 @@ export class TalentsService {
   async rejectTalent(id: number) {
     const talent = await this.talentRepository.findOne({ where: { id } });
     if (!talent) {
-      throw new Error(`Talent with ID ${id} not found`);
+      throw new Error(`Không tìm thấy talent với ID ${id}`);
     }
     talent.status = 'inactive';
     return this.talentRepository.save(talent);

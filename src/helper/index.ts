@@ -4,5 +4,5 @@ export const getFileType = (mimetype: string) => {
   } else if (/^video\//.test(mimetype)) {
     return 'videos';
   }
-  throw new Error('Unsupported file type');
+  throw new Error('Định dạng tệp không được hỗ trợ');
 };
