@@ -22,8 +22,6 @@ export class TalentsController {
   constructor(private readonly talentsService: TalentsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, PermissionsGuard)
-  @Permissions('create_talent')
   create(@Body() createTalentDto: any) {
     try {
       return this.talentsService.create(createTalentDto);
