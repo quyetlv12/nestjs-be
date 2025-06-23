@@ -148,14 +148,14 @@ export class TalentsService {
   findOne(id: number) {
     return this.talentRepository.findOne({
       where: { id },
-      relations: ['videos'],
+      relations: ['videos', "categories", 'roles'],
     });
   }
 
   findByEmail(email: string) {
     return this.talentRepository.findOne({
       where: { email },
-      relations: ['roles'],
+      relations: ['roles', 'categories', 'videos'],
       select: {
         id: true,
         name: true,
@@ -265,6 +265,7 @@ export class TalentsService {
         categories: true,
         videos: true,
         avatar: true,
+        job: true,
       },
     });
   }
