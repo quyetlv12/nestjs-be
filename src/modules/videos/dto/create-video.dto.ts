@@ -19,6 +19,17 @@ export class CreateVideoDto {
   @IsString()
   duration: string;
 
+  @ApiProperty({ example: 1, description: 'Giá của video' })
+  @IsNotEmpty()
+  @IsNumber()
+  price: number;
+
+  @ApiProperty({ example: 1, description: 'Thumbnail của video' })
+  @IsNotEmpty()
+  @IsString()
+  thumbnailLink: string;
+
+
   @ApiProperty({ example: 1, description: 'ID của người tạo video (user)' })
   @IsNotEmpty()
   @IsNumber()

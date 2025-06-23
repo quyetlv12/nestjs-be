@@ -38,6 +38,16 @@ import {
   
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @Column({ nullable: true })
+    thumbnailLink: string;
+
+    @Column({ nullable: true })
+    hide_video: boolean;
+
+    @Column({ nullable: true })
+    price: number;
+
   
     @OneToMany(() => Comment, (comment) => comment.talent)
     comments: Comment[];

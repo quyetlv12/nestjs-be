@@ -31,6 +31,16 @@ export class CreateVideos1750086076998 implements MigrationInterface {
             default: false,
             comment: 'Hide the video from?',
           },
+
+          {
+            name: 'price',
+            type: 'int',
+            default: 0,
+          },
+          {
+            name : "thumbnailLink",
+            type : "varchar",
+          },
           {
             name: 'createdAt',
             type: 'timestamp',

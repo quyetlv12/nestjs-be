@@ -30,6 +30,9 @@ export const seedVideos = async (dataSource: DataSource) => {
       createdBy: talent,
       createdById: talent.id,
       categoryId: category.id, // Nếu có quan hệ category-video
+      thumbnailLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      price: 100000,
+      hide_video: false,
     },
   ];
 

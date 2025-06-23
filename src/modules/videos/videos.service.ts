@@ -16,7 +16,7 @@ export class VideoService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(data: CreateVideoDto & { file: Express.Multer.File }) {
+  async create(data: CreateVideoDto & { file?: Express.Multer.File, thumbnail?: Express.Multer.File }) {
     const user = await this.userRepository.findOne({
       where: { id: data?.createdById },
     });
@@ -26,26 +26,33 @@ export class VideoService {
       );
     }
 
-    // Upload video file to Cloudinary and get the link
+    // Upload video file
     let videoLink = '';
     if (data.file) {
-      // Dynamically import UploadService to avoid circular dependency
       const { UploadService } = await import('../upload/upload.service');
       const uploadService = new UploadService({
         get: () => process.env.APP_URL,
       } as any);
-      const result = await uploadService.uploadImageCloudinary(
-        data.file,
-      );
+      const result = await uploadService.uploadImageCloudinary(data.file);
       videoLink = result.secure_url;
     }
 
-    console.log('videoLink', videoLink);
+    // Upload thumbnail file
+    let thumbnailLink = '';
+    if (data.thumbnail) {
+      const { UploadService } = await import('../upload/upload.service');
+      const uploadService = new UploadService({
+        get: () => process.env.APP_URL,
+      } as any);
+      const result = await uploadService.uploadImageCloudinary(data.thumbnail);
+      thumbnailLink = result.secure_url;
+    }
 
     const video = this.videoRepository.create({
       ...data,
-      videoLink: videoLink,
+      videoLink,
       createdBy: user,
+      thumbnailLink,
     });
 
     return await this.videoRepository.save(video);
