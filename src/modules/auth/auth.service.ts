@@ -52,6 +52,7 @@ export class AuthService {
       return this.userRepository.save({
         ...registerDto,
         password: hashedPassword,
+        status: 'active',
         roles: [userRole],
       });
     } catch (error) {
