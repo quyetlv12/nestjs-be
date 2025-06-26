@@ -1,4 +1,4 @@
-import { Order, OrderStatus, RecipientType, VideoProtocolMethod } from '../../modules/orders/entities/order.entity';
+import { Order, OrderStatus, PaymentStatus, RecipientType, VideoProtocolMethod } from '../../modules/orders/entities/order.entity';
 import { User } from '../../modules/users/user.entity';
 import { DataSource } from 'typeorm';
 
@@ -27,7 +27,7 @@ export const seedOrders = async (dataSource: DataSource) => {
       status: OrderStatus.PENDING,
       price: 150000,
       paymentMethod: 'credit_card',
-      paymentStatus: 'pending',
+      paymentStatus: PaymentStatus.PENDING,
       request_details: 'Tôi muốn một video chúc mừng sinh nhật cho bạn gái tôi. Cô ấy thích nhạc pop và màu hồng.',
       example_video_link: 'https://www.youtube.com/watch?v=example1',
       video_from: 'Nguyễn Văn A',
@@ -46,7 +46,7 @@ export const seedOrders = async (dataSource: DataSource) => {
       status: OrderStatus.PROCESSING,
       price: 200000,
       paymentMethod: 'bank_transfer',
-      paymentStatus: 'paid',
+      paymentStatus: PaymentStatus.PAID,
       paymentDate: new Date('2024-01-15'),
       request_details: 'Video kỷ niệm 5 năm ngày cưới. Tôi muốn một video lãng mạn với nhạc ballad.',
       example_video_link: 'https://www.youtube.com/watch?v=example2',
@@ -66,7 +66,7 @@ export const seedOrders = async (dataSource: DataSource) => {
       status: OrderStatus.COMPLETED,
       price: 180000,
       paymentMethod: 'momo',
-      paymentStatus: 'paid',
+      paymentStatus: PaymentStatus.PAID,
       paymentDate: new Date('2024-01-10'),
       request_details: 'Video chúc mừng tốt nghiệp cho em trai. Em ấy vừa tốt nghiệp đại học.',
       example_video_link: 'https://www.youtube.com/watch?v=example3',
@@ -86,7 +86,7 @@ export const seedOrders = async (dataSource: DataSource) => {
       status: OrderStatus.COMPLAINT,
       price: 300000,
       paymentMethod: 'credit_card',
-      paymentStatus: 'paid',
+      paymentStatus: PaymentStatus.PAID,
       paymentDate: new Date('2024-01-05'),
       request_details: 'Video chúc mừng đám cưới cho chị gái. Tôi muốn video thật đặc biệt và ý nghĩa.',
       example_video_link: 'https://www.youtube.com/watch?v=example4',
@@ -106,7 +106,7 @@ export const seedOrders = async (dataSource: DataSource) => {
       status: OrderStatus.REFUNDED,
       price: 120000,
       paymentMethod: 'bank_transfer',
-      paymentStatus: 'refunded',
+      paymentStatus: PaymentStatus.REFUNDED,
       request_details: 'Video chúc mừng thăng chức cho đồng nghiệp. Anh ấy vừa được thăng làm trưởng phòng.',
       example_video_link: 'https://www.youtube.com/watch?v=example5',
       video_from: 'Hoàng Văn E',
@@ -125,7 +125,7 @@ export const seedOrders = async (dataSource: DataSource) => {
       status: OrderStatus.REJECTED,
       price: 250000,
       paymentMethod: 'credit_card',
-      paymentStatus: 'refunded',
+      paymentStatus: PaymentStatus.REFUNDED,
       request_details: 'Video chúc mừng nghỉ hưu cho bố. Bố tôi vừa nghỉ hưu sau 30 năm làm việc.',
       example_video_link: 'https://www.youtube.com/watch?v=example6',
       video_from: 'Vũ Thị F',

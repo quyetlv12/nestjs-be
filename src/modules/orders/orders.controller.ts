@@ -16,7 +16,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth }
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { Order } from './entities/order.entity';
+import { Order, OrderStatus } from './entities/order.entity';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { Permissions } from '../../common/decorators/permissions.decorator';
@@ -57,11 +57,10 @@ export class OrdersController {
   ): Promise<Order> {
     // Tự động lấy userId từ JWT token
     const tokenData = this.jwtTokenService.getTokenData(token);
-    createOrderDto.userId = tokenData.userId;
     
     console.log(`Creating order for user: ${tokenData.userId} (${tokenData.email})`);
-    
-    return await this.ordersService.create(createOrderDto);
+
+    return await this.ordersService.create(createOrderDto, tokenData.userId);
   }
 
   @Get()
@@ -254,7 +253,7 @@ export class OrdersController {
   @Permissions('update_order_status')
   async updateStatus(
     @Param('id', ParseIntPipe) id: number,
-    @Body('status') status: string,
+    @Body('status') status: OrderStatus,
     @CurrentUser() user: any,
     @Token() token: string
   ): Promise<Order> {

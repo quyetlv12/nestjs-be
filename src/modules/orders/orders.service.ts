@@ -3,23 +3,41 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { Order, VideoProtocolMethod, RecipientType, OrderStatus } from './entities/order.entity';
+import { Order, VideoProtocolMethod, RecipientType, OrderStatus, PaymentStatus } from './entities/order.entity';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    console.log("createOrderDto" , createOrderDto);
-    
+  async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
+
+    // Kiểm tra xem talent có tồn tại không
+    const talent = await this.userRepository.findOne({ where: { id: createOrderDto.talentId } });
+    if (!talent) {
+      throw new NotFoundException(`Talent with ID ${createOrderDto.talentId} not found`);
+    }
+
+   const user = await this.userRepository.findOne({ where: { id: userId } });
+   if (!user) {
+     throw new NotFoundException(`User with ID ${userId} not found`);
+   }
+
+   
+
     const orderData = {
       ...createOrderDto,
       video_protocol_method: createOrderDto.video_protocol_method as VideoProtocolMethod,
       recipient: createOrderDto.recipient as RecipientType,
       status: OrderStatus.PENDING,
+      user: user,
+      talent: talent,
+      price: talent.price 
     };
     
     const order = this.orderRepository.create(orderData);
@@ -76,7 +94,7 @@ export class OrdersService {
 
   async updatePaymentStatus(id: number, paymentStatus: string): Promise<Order> {
     const order = await this.findOne(id);
-    order.paymentStatus = paymentStatus;
+    order.paymentStatus = paymentStatus as PaymentStatus;
     if (paymentStatus === 'paid') {
       order.paymentDate = new Date();
     }
@@ -89,9 +107,9 @@ export class OrdersService {
     return await this.orderRepository.save(order);
   }
 
-  async updateStatus(id: number, status: string): Promise<Order> {
+  async updateStatus(id: number, status: OrderStatus): Promise<Order> {
     const order = await this.findOne(id);
-    order.status = status as OrderStatus;
+    order.status = status;
     return await this.orderRepository.save(order);
   }
 }

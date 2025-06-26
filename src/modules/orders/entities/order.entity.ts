@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '../../users/user.entity';
+import { IsOptional } from 'class-validator';
 
 export enum VideoProtocolMethod {
   SEVEN_DAYS = '7days',
@@ -36,7 +37,7 @@ export class Order {
   @Column({ type: 'varchar', length: 100 })
   type: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   email: string;
 
   @Column({
@@ -73,8 +74,13 @@ export class Order {
   @Column({ name: 'paymentMethod', type: 'varchar', length: 50 })
   paymentMethod: string;
 
-  @Column({ name: 'paymentStatus', type: 'varchar', length: 50 })
-  paymentStatus: string;
+  @Column({
+    type: 'enum',
+    enum: PaymentStatus,
+    default: PaymentStatus.PENDING,
+    name: 'paymentStatus',
+  })
+  paymentStatus: PaymentStatus;
 
   @Column({ name: 'paymentDate', type: 'timestamp', nullable: true })
   paymentDate?: Date;
@@ -85,16 +91,16 @@ export class Order {
   @Column({ name: 'example_video_link', type: 'varchar', length: 500, nullable: true })
   example_video_link?: string;
 
-  @Column({ name: 'video_from', type: 'varchar', length: 255 })
+  @Column({ name: 'video_from', type: 'varchar', length: 255, nullable: true })
   video_from: string;
 
-  @Column({ name: 'video_from_gender', type: 'varchar', length: 20 })
+  @Column({ name: 'video_from_gender', type: 'varchar', length: 20, nullable: true })
   video_from_gender: string;
 
-  @Column({ name: 'hide_video_from', type: 'boolean', default: false })
+  @Column({ name: 'hide_video_from', type: 'boolean', default: false, nullable: true })
   hide_video_from: boolean;
 
-  @Column({ name: 'video_link', type: 'varchar', length: 500 })
+  @Column({ name: 'video_link', type: 'varchar', length: 500, nullable: true })
   video_link: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
@@ -105,7 +111,7 @@ export class Order {
   @JoinColumn({ name: 'talentId' })
   talent: User;
 
-  @Column({ name: 'userId' })
+  @Column({ name: 'userId', nullable: true })
   userId: number;
 
   @CreateDateColumn({ name: 'createdAt' })
