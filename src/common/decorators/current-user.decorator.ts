@@ -9,7 +9,7 @@ export const CurrentUser = createParamDecorator(
     }
     
     return {
-      id: user.id,
+      id: user.userId,
       email: user.email,
       phone: user.phone,
       nickname: user.nickname,

@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -7,11 +7,27 @@ import { AppModule } from './app.module';
 import { QueryFailedFilter } from './common/query-failed.filter';
 import { writeFileSync } from 'fs';
 import { Response } from 'express';
+import { initializeTransactionalContext, addTransactionalDataSource } from 'typeorm-transactional'
+import AppDataSource from './database/typeorm.config';
+
+
+initializeTransactionalContext();
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['debug', 'error', 'warn', 'log'],
   });
+
+  await AppDataSource.initialize();
+  addTransactionalDataSource(AppDataSource); 
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true, 
+      whitelist: true,
+      forbidNonWhitelisted: false,
+    })
+  )
 
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
@@ -39,7 +55,7 @@ async function bootstrap() {
         description: 'Enter JWT token',
         in: 'header',
       },
-      'JWT-auth', // This name here is important for references
+      'JWT-auth', 
     )
     .addTag('auth', 'Authentication endpoints')
     .addTag('users', 'User management')
@@ -63,10 +79,11 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT || 4000);
 }
-bootstrap();
 
 
 export async function createNestApplication() {
   const app = await NestFactory.create(AppModule);
   return app;
 }
+
+bootstrap();

@@ -14,6 +14,7 @@ import { VideosModule } from './modules/videos/videos.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { OrdersModule } from './modules/orders/orders.module';
     UploadModule,
     CommentsModule,
     OrdersModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

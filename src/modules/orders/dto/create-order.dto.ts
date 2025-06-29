@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEnum, IsNumber } from 'class-validator';
+import { IsString, IsEnum, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateOrderDto {
   @ApiProperty({
@@ -16,6 +16,7 @@ export class CreateOrderDto {
     example: '24hours',
   })
   @IsEnum(['7days', '24hours'])
+  @IsOptional()
   video_protocol_method: '7days' | '24hours';
 
   @ApiProperty({
@@ -39,15 +40,8 @@ export class CreateOrderDto {
     example: 'male',
   })
   @IsString()
+  @IsOptional()
   for_gender: string;
-
-  @ApiProperty({
-    description: 'Phương thức thanh toán',
-    enum: ['vnpay', 'sepay', 'momo', 'bank_transfer'],
-    example: 'credit_card',
-  })
-  @IsString()
-  paymentMethod: string;
 
   @ApiProperty({
     description: 'Chi tiết yêu cầu',

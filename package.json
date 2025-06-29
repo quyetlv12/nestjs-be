@@ -54,6 +54,7 @@
     "rxjs": "^7.8.1",
     "serverless-http": "^3.2.0",
     "typeorm": "^0.3.24",
+    "typeorm-transactional": "^0.5.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

@@ -5,14 +5,11 @@ import {
   Body, 
   Patch, 
   Param, 
-  Delete, 
   ParseIntPipe,
-  HttpStatus,
-  HttpCode,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth, getSchemaPath, ApiBody } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -23,9 +20,14 @@ import { Permissions } from '../../common/decorators/permissions.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Token } from '../../common/decorators/token.decorator';
 import { JwtTokenService } from '../../common/services/jwt.service';
+import { OrderSearchRequestDto } from './dto/order-search-request-dto';
+import { PageResponseDto } from '../../common/dto/page-response-dto';
+import { Role } from '../roles/entities/role.entity';
+import { HaveRole } from 'src/common/decorators/role.decorator';
+import { RoleConstants } from 'src/common/constants/role.contants';
 
 @ApiTags('orders')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @Controller('api/orders')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class OrdersController {
@@ -41,123 +43,131 @@ export class OrdersController {
     description: 'Đơn hàng được tạo thành công',
     type: Order 
   })
-  @ApiResponse({ 
-    status: 400, 
-    description: 'Dữ liệu không hợp lệ' 
-  })
-  @ApiResponse({ 
-    status: 401, 
-    description: 'Unauthorized' 
-  })
-  @Permissions('create_order')
+  @HaveRole(RoleConstants.USER)
   async create(
     @Body() createOrderDto: CreateOrderDto, 
-    @CurrentUser() user: any,
     @Token() token: string
   ): Promise<Order> {
-    // Tự động lấy userId từ JWT token
     const tokenData = this.jwtTokenService.getTokenData(token);
-    
-    console.log(`Creating order for user: ${tokenData.userId} (${tokenData.email})`);
 
     return await this.ordersService.create(createOrderDto, tokenData.userId);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Lấy danh sách đơn hàng' })
-  @ApiResponse({ 
-    status: 200, 
-    description: 'Danh sách đơn hàng',
-    type: [Order] 
-  })
-  @ApiResponse({ 
-    status: 401, 
-    description: 'Unauthorized' 
-  })
-  @ApiQuery({ 
-    name: 'userId', 
-    required: false, 
-    description: 'Lọc theo user ID (chỉ admin)' 
-  })
   @Permissions('view_order_list')
+  @ApiOperation({ summary: 'Lấy danh sách đơn hàng' })
+  @ApiResponse({
+    description: 'Danh sách đơn hàng',
+    schema: {
+      allOf: [
+        {
+          properties: {
+            data: {
+              type: 'array',
+              items: { $ref: getSchemaPath(Order) },
+            },
+            total: { type: 'number', example: 100 },
+            page: { type: 'number', example: 1 },
+            limit: { type: 'number', example: 10 },
+          },
+        },
+      ],
+    },
+  })
+  @ApiParam({ name: 'page', description: 'Số trang', required: false })
+  @ApiParam({ name: 'limit', description: 'Số lượng đơn hàng mỗi trang', required: false })
+  @ApiQuery({ name: 'status', description: 'Trạng thái đơn hàng', required: false, type: String })
   async findAll(
-    @CurrentUser() user: any, 
-    @Query('userId') userId?: string,
-    @Token() token?: string
-  ): Promise<Order[]> {
-    const tokenData = token ? this.jwtTokenService.getTokenData(token) : null;
-    const currentUserId = tokenData?.userId || user.userId;
-    
-    console.log(`Fetching orders for user: ${currentUserId}`);
-    
-    // Nếu không có userId query, chỉ trả về orders của user hiện tại
-    if (!userId) {
-      return await this.ordersService.findByUserId(currentUserId);
-    }
-    
-    // Nếu có userId query và user có quyền admin, trả về orders của user đó
-    if (token && this.jwtTokenService.hasPermission(token, 'view_all_orders')) {
-      console.log(`Admin fetching orders for user: ${userId}`);
-      return await this.ordersService.findByUserId(parseInt(userId));
-    }
-    
-    // Nếu không có quyền, chỉ trả về orders của chính mình
-    console.log(`User ${currentUserId} trying to access orders of user ${userId} - denied`);
-    return await this.ordersService.findByUserId(currentUserId);
+    @Query() request: OrderSearchRequestDto,
+  ): Promise<PageResponseDto<Order>> {
+
+    return await this.ordersService.search(request);
   }
 
-  @Get('my-orders')
+  @Get('/me')
   @ApiOperation({ summary: 'Lấy danh sách đơn hàng của tôi' })
   @ApiResponse({ 
     status: 200, 
     description: 'Danh sách đơn hàng của user hiện tại',
-    type: [Order] 
+    schema: {
+      allOf: [
+        {
+          properties: {
+            data: {
+              type: 'array',
+              items: { $ref: getSchemaPath(Order) },
+            },
+            meta: {
+              type: 'object',
+              properties: {
+                total: { type: 'number', example: 100 },
+                page: { type: 'number', example: 1 },
+                limit: { type: 'number', example: 10 },
+              },
+            },
+          },
+        },
+      ],
+    },
   })
-  @ApiResponse({ 
-    status: 401, 
-    description: 'Unauthorized' 
-  })
-  @Permissions('view_order_list')
-  async getMyOrders(@Token() token: string): Promise<Order[]> {
+  @ApiParam({ name: 'page', description: 'Số trang', required: false })
+  @ApiParam({ name: 'limit', description: 'Số lượng đơn hàng mỗi trang', required: false })
+  @ApiQuery({ name: 'status', description: 'Trạng thái đơn hàng', required: false, type: String })
+  @ApiParam({ name: 'createdAt', description: 'Ngày tạo đơn hàng', required: false, type: Date })
+  @ApiQuery({ name: 'updatedAt', description: 'Ngày cập nhật đơn hàng', required: false, type: Date })
+  @ApiQuery({ name: 'q', description: 'Từ khóa tìm kiếm', required: false, type: String })
+  @HaveRole(RoleConstants.USER)
+  async getMyOrders(@Token() token: string, @Query() request: OrderSearchRequestDto): Promise<PageResponseDto<Order>> {
     const tokenData = this.jwtTokenService.getTokenData(token);
-    console.log(`Fetching my orders for user: ${tokenData.userId} (${tokenData.email})`);
-    
-    return await this.ordersService.findByUserId(tokenData.userId);
+
+    return await this.ordersService.findByUserId(tokenData.userId, request);
   }
 
-  @Get('token-info')
-  @ApiOperation({ summary: 'Lấy thông tin từ JWT token (Demo)' })
+  @Get('/talent/me')
+  @ApiOperation({ summary: 'Lấy danh sách đơn hàng của talent hiện tại' })
   @ApiResponse({ 
     status: 200, 
-    description: 'Thông tin token' 
+    description: 'Danh sách đơn hàng của talent hiện tại',
+    schema: {
+      allOf: [
+        {
+          properties: {
+            data: {
+              type: 'array',
+              items: { $ref: getSchemaPath(Order) },
+            },
+            meta: {
+              type: 'object',
+              properties: {
+                total: { type: 'number', example: 100 },
+                page: { type: 'number', example: 1 },
+                limit: { type: 'number', example: 10 },
+              },
+            },
+          },
+        },
+      ],
+    },
   })
-  @ApiResponse({ 
-    status: 401, 
-    description: 'Unauthorized' 
-  })
-  async getTokenInfo(@Token() token: string) {
-    if (!token) {
-      return { error: 'No token provided' };
+  @ApiParam({ name: 'page', description: 'Số trang', required: false })
+  @ApiParam({ name: 'limit', description: 'Số lượng đơn hàng mỗi trang', required: false })
+  @ApiQuery({ name: 'status', description: 'Trạng thái đơn hàng', required: false, type: String })
+  @ApiQuery({ name: 'q', description: 'Từ khóa tìm kiếm', required: false, type: String })
+  @HaveRole(RoleConstants.TALENT)
+  async getMyTalentOrders(
+    @CurrentUser() user: any, 
+    @Token() token: string, 
+    @Query() request: OrderSearchRequestDto
+  ): Promise<PageResponseDto<Order>> {
+    const tokenData = this.jwtTokenService.getTokenData(token);
+
+    if (user.id !== tokenData.userId && !this.jwtTokenService.hasPermission(token, 'view_all_orders')) {
+      throw new Error('Bạn không có quyền xem đơn hàng của talent này');
     }
 
-    try {
-      const tokenData = this.jwtTokenService.getTokenData(token);
-      const isExpired = this.jwtTokenService.isTokenExpired(token);
-      const expiration = this.jwtTokenService.getTokenExpiration(token);
-      
-      return {
-        tokenData,
-        isExpired,
-        expiration,
-        hasAdminPermission: this.jwtTokenService.hasPermission(token, 'admin'),
-        hasOrderPermission: this.jwtTokenService.hasPermission(token, 'create_order'),
-        canViewAllOrders: this.jwtTokenService.hasPermission(token, 'view_all_orders'),
-        canUpdateOrderStatus: this.jwtTokenService.hasPermission(token, 'update_order_status'),
-      };
-    } catch (error) {
-      return { error: 'Invalid token' };
-    }
+    return await this.ordersService.findByTalentId(user.id, request);
   }
+
 
   @Get(':id')
   @ApiOperation({ summary: 'Lấy thông tin đơn hàng theo ID' })
@@ -167,15 +177,6 @@ export class OrdersController {
     description: 'Thông tin đơn hàng',
     type: Order 
   })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'Không tìm thấy đơn hàng' 
-  })
-  @ApiResponse({ 
-    status: 401, 
-    description: 'Unauthorized' 
-  })
-  @Permissions('view_order_detail')
   async findOne(
     @Param('id', ParseIntPipe) id: number, 
     @CurrentUser() user: any,
@@ -183,206 +184,85 @@ export class OrdersController {
   ): Promise<Order> {
     const order = await this.ordersService.findOne(id);
     const tokenData = this.jwtTokenService.getTokenData(token);
-    
-    console.log(`User ${tokenData.userId} trying to view order ${id}`);
-    
-    // Kiểm tra quyền: chỉ cho phép xem order của chính mình hoặc admin
-    if (order.userId !== tokenData.userId && !this.jwtTokenService.hasPermission(token, 'view_all_orders')) {
-      console.log(`Access denied: User ${tokenData.userId} cannot view order ${id} (belongs to user ${order.userId})`);
+
+    if (order.userId !== tokenData.userId && order.talent.id !== tokenData.userId && !this.jwtTokenService.hasPermission(token, 'view_all_orders')) {
       throw new Error('Bạn không có quyền xem đơn hàng này');
     }
-    
-    console.log(`Access granted: User ${tokenData.userId} viewing order ${id}`);
     return order;
   }
 
-  @Patch(':id')
-  @ApiOperation({ summary: 'Cập nhật đơn hàng' })
+  @Patch(':id/accept')
+  @ApiOperation({ summary: 'Chấp nhận đơn hàng' })
   @ApiParam({ name: 'id', description: 'ID của đơn hàng' })
   @ApiResponse({ 
     status: 200, 
-    description: 'Đơn hàng được cập nhật thành công',
+    description: 'Đơn hàng đã được chấp nhận',
     type: Order 
   })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'Không tìm thấy đơn hàng' 
-  })
-  @ApiResponse({ 
-    status: 401, 
-    description: 'Unauthorized' 
-  })
-  @Permissions('update_order')
-  async update(
-    @Param('id', ParseIntPipe) id: number, 
-    @Body() updateOrderDto: UpdateOrderDto,
+  @HaveRole(RoleConstants.TALENT)
+  async acceptOrder(
+    @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: any,
-    @Token() token: string
   ): Promise<Order> {
-    const order = await this.ordersService.findOne(id);
-    const tokenData = this.jwtTokenService.getTokenData(token);
-    
-    console.log(`User ${tokenData.userId} trying to update order ${id}`);
-    
-    // Kiểm tra quyền: chỉ cho phép cập nhật order của chính mình hoặc admin
-    if (order.userId !== tokenData.userId && !this.jwtTokenService.hasPermission(token, 'update_all_orders')) {
-      console.log(`Access denied: User ${tokenData.userId} cannot update order ${id} (belongs to user ${order.userId})`);
-      throw new Error('Bạn không có quyền cập nhật đơn hàng này');
-    }
-    
-    console.log(`Access granted: User ${tokenData.userId} updating order ${id}`);
-    return await this.ordersService.update(id, updateOrderDto);
+    return await this.ordersService.accept(id, user);
   }
 
-  @Patch(':id/status')
-  @ApiOperation({ summary: 'Cập nhật trạng thái đơn hàng' })
+  @Patch(':id/reject')
+  @ApiOperation({ summary: 'Từ chối đơn hàng' })
   @ApiParam({ name: 'id', description: 'ID của đơn hàng' })
   @ApiResponse({ 
     status: 200, 
-    description: 'Trạng thái đơn hàng được cập nhật thành công',
+    description: 'Đơn hàng đã bị từ chối',
     type: Order 
   })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'Không tìm thấy đơn hàng' 
-  })
-  @ApiResponse({ 
-    status: 401, 
-    description: 'Unauthorized' 
-  })
-  @Permissions('update_order_status')
-  async updateStatus(
+  @HaveRole(RoleConstants.TALENT)
+  async rejectOrder(
     @Param('id', ParseIntPipe) id: number,
-    @Body('status') status: OrderStatus,
     @CurrentUser() user: any,
     @Token() token: string
   ): Promise<Order> {
-    const order = await this.ordersService.findOne(id);
-    const tokenData = this.jwtTokenService.getTokenData(token);
-    
-    console.log(`User ${tokenData.userId} trying to update status of order ${id} to ${status}`);
-    
-    // Chỉ admin hoặc talent mới có thể cập nhật status
-    if (!this.jwtTokenService.hasPermission(token, 'update_order_status')) {
-      console.log(`Access denied: User ${tokenData.userId} cannot update order status`);
-      throw new Error('Bạn không có quyền cập nhật trạng thái đơn hàng');
+    if (!this.jwtTokenService.hasPermission(token, 'reject_order') && 
+        !this.jwtTokenService.hasPermission(token, 'admin')) {
+      throw new Error('Bạn không có quyền từ chối đơn hàng');
     }
-    
-    console.log(`Access granted: User ${tokenData.userId} updating order ${id} status to ${status}`);
-    return await this.ordersService.updateStatus(id, status);
+    return await this.ordersService.reject(id, user);
   }
 
-  @Patch(':id/payment-status')
-  @ApiOperation({ summary: 'Cập nhật trạng thái thanh toán' })
+  @Patch(':id/cancel')
+  @ApiOperation({ summary: 'Hủy đơn hàng' })
   @ApiParam({ name: 'id', description: 'ID của đơn hàng' })
   @ApiResponse({ 
     status: 200, 
-    description: 'Trạng thái thanh toán được cập nhật thành công',
+    description: 'Đơn hàng đã bị hủy',
     type: Order 
   })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'Không tìm thấy đơn hàng' 
-  })
-  @ApiResponse({ 
-    status: 401, 
-    description: 'Unauthorized' 
-  })
-  @Permissions('update_payment_status')
-  async updatePaymentStatus(
+  @HaveRole(RoleConstants.USER)
+  async cancelOrder(
     @Param('id', ParseIntPipe) id: number,
-    @Body('paymentStatus') paymentStatus: string,
-    @CurrentUser() user: any,
-    @Token() token: string
+    @CurrentUser() user: any
   ): Promise<Order> {
-    const order = await this.ordersService.findOne(id);
-    const tokenData = this.jwtTokenService.getTokenData(token);
-    
-    console.log(`User ${tokenData.userId} trying to update payment status of order ${id} to ${paymentStatus}`);
-    
-    // Chỉ admin mới có thể cập nhật payment status
-    if (!this.jwtTokenService.hasPermission(token, 'admin')) {
-      console.log(`Access denied: User ${tokenData.userId} cannot update payment status`);
-      throw new Error('Bạn không có quyền cập nhật trạng thái thanh toán');
-    }
-    
-    console.log(`Access granted: Admin ${tokenData.userId} updating order ${id} payment status to ${paymentStatus}`);
-    return await this.ordersService.updatePaymentStatus(id, paymentStatus);
+    return await this.ordersService.cancel(id, user);
   }
 
   @Patch(':id/video-link')
   @ApiOperation({ summary: 'Cập nhật link video' })
   @ApiParam({ name: 'id', description: 'ID của đơn hàng' })
+  @ApiBody({
+    description: 'Link video mới',
+    type: String,
+  })
   @ApiResponse({ 
     status: 200, 
     description: 'Link video được cập nhật thành công',
     type: Order 
   })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'Không tìm thấy đơn hàng' 
-  })
-  @ApiResponse({ 
-    status: 401, 
-    description: 'Unauthorized' 
-  })
-  @Permissions('update_video_link')
+  @HaveRole(RoleConstants.TALENT)
   async updateVideoLink(
     @Param('id', ParseIntPipe) id: number,
     @Body('videoLink') videoLink: string,
-    @CurrentUser() user: any,
     @Token() token: string
   ): Promise<Order> {
-    const order = await this.ordersService.findOne(id);
-    const tokenData = this.jwtTokenService.getTokenData(token);
-    
-    console.log(`User ${tokenData.userId} trying to update video link for order ${id}`);
-    
-    // Chỉ talent hoặc admin mới có thể cập nhật video link
-    if (!this.jwtTokenService.hasPermission(token, 'update_video_link') && 
-        !this.jwtTokenService.hasPermission(token, 'admin')) {
-      console.log(`Access denied: User ${tokenData.userId} cannot update video link`);
-      throw new Error('Bạn không có quyền cập nhật link video');
-    }
-    
-    console.log(`Access granted: User ${tokenData.userId} updating video link for order ${id}`);
+    // check permission
     return await this.ordersService.updateVideoLink(id, videoLink);
-  }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Xóa đơn hàng' })
-  @ApiParam({ name: 'id', description: 'ID của đơn hàng' })
-  @ApiResponse({ 
-    status: 204, 
-    description: 'Đơn hàng được xóa thành công' 
-  })
-  @ApiResponse({ 
-    status: 404, 
-    description: 'Không tìm thấy đơn hàng' 
-  })
-  @ApiResponse({ 
-    status: 401, 
-    description: 'Unauthorized' 
-  })
-  @Permissions('delete_order')
-  async remove(
-    @Param('id', ParseIntPipe) id: number, 
-    @CurrentUser() user: any,
-    @Token() token: string
-  ): Promise<void> {
-    const order = await this.ordersService.findOne(id);
-    const tokenData = this.jwtTokenService.getTokenData(token);
-    
-    console.log(`User ${tokenData.userId} trying to delete order ${id}`);
-    
-    // Kiểm tra quyền: chỉ cho phép xóa order của chính mình hoặc admin
-    if (order.userId !== tokenData.userId && !this.jwtTokenService.hasPermission(token, 'delete_all_orders')) {
-      console.log(`Access denied: User ${tokenData.userId} cannot delete order ${id} (belongs to user ${order.userId})`);
-      throw new Error('Bạn không có quyền xóa đơn hàng này');
-    }
-    
-    console.log(`Access granted: User ${tokenData.userId} deleting order ${id}`);
-    return await this.ordersService.remove(id);
   }
 }
