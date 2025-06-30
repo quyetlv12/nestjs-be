@@ -8,6 +8,8 @@ export interface TokenData {
   phone?: string;
   nickname: string;
   permissions: string[];
+  name : string;
+  avatar? : string;
 }
 
 @Injectable()
@@ -22,7 +24,9 @@ export class JwtTokenService {
     email: string;
     phone?: string;
     nick_name: string;
+    name : string;
     permissions: string[];
+    avatar : string;
   }): string {
     const payload: JwtPayload = {
       email: userData.email,
@@ -30,6 +34,7 @@ export class JwtTokenService {
       nickname: userData.nick_name,
       id: userData.id,
       permissions: userData.permissions,
+      name : userData.name
     };
 
     return this.jwtService.sign(payload, {
@@ -62,7 +67,9 @@ export class JwtTokenService {
       email: payload.email,
       phone: payload.phone,
       nickname: payload.nickname,
+      name : payload.name,
       permissions: payload.permissions || [],
+      avatar : payload.avatar
     };
   }
 
