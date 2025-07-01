@@ -7,6 +7,7 @@ import { seedComments } from './comment.seed';
 import { seedTalents } from './talent.seed';
 import { seedOrders } from './order.seed';
 import { seedPermissions } from './permission.seed';
+import { complaintSeed } from './complaint.seed';
 
 dataSource.initialize().then(async () => {
   console.log('🔁 Running seeders...');
@@ -18,6 +19,7 @@ dataSource.initialize().then(async () => {
   await seedComments(dataSource);
   await seedTalents(dataSource);
   await seedOrders(dataSource);
+  await complaintSeed(dataSource);
   await dataSource.destroy();
   console.log('🌱 Done seeding');
 }).catch((err) => {

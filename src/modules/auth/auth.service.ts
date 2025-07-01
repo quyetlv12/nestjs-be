@@ -11,6 +11,8 @@ import { LoginDto, RegisterDto } from 'src/interfaces';
 import { Repository } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
 import { User } from '../users/user.entity';
+import { UpdateProfileDto } from './dto/updateProfileDto';
+import { TokenData } from 'src/common/services/jwt.service';
 @Injectable()
 export class AuthService {
   @InjectRepository(User)
@@ -60,7 +62,7 @@ export class AuthService {
     }
   }
 
-  async login(loginDto: LoginDto) {    
+  async login(loginDto: LoginDto) {
     try {
       const user = await this.userRepository.findOne({
         where: { email: loginDto.email },
@@ -85,25 +87,22 @@ export class AuthService {
       const _user = _.omit(user, ['password']);
 
       const permissions = user.roles.reduce((acc, role) => {
-        return acc.concat(role.permissions.map((permission) => permission.name));
+        return acc.concat(
+          role.permissions.map((permission) => permission.name),
+        );
       }, [] as string[]);
-
-
-
-      console.log("user login" , user);
-
-      
-      const tokenData = {        
-        email : user.email,
-        phone : user.phone,
-        nickname : user.nick_name,
-        id : user.id,
-        permissions
+      const tokenData = {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        nickname: user.nick_name,
+        id: user.id,
+        permissions,
+        avatar: user.avatar,
       };
-      console.log("tokenData" , tokenData);
-      
+
       const token = this.jwtService.sign(tokenData, {
-        algorithm: 'HS256'
+        algorithm: 'HS256',
       });
       return {
         user: _user,
@@ -112,5 +111,40 @@ export class AuthService {
     } catch (error) {
       throw new BadRequestException(error.message);
     }
+  }
+
+  async me (user : TokenData){
+    const _user = this.userRepository.findOne({ where: { id: user.userId }})
+    return _user
+  }
+
+  async updateProfile(
+    updateDto: UpdateProfileDto & { avatarFile?: Express.Multer.File },
+    userId: number,
+  ) {
+    const _user = this.userRepository.findOne({ where: { id: userId }})
+    if (!_user) {
+      throw new UnauthorizedException('Không tìm thấy thông tin tài khoản');
+    }
+    // Upload thumbnail file
+    let avatar = _user['avatar'];
+    if (updateDto.avatarFile) {
+      const { UploadService } = await import('../upload/upload.service');
+      const uploadService = new UploadService({
+        get: () => process.env.APP_URL,
+      } as any);
+      const result = await uploadService.uploadImageCloudinary(
+        updateDto.avatarFile,
+      );
+      avatar = result.secure_url;
+    }    
+    // Remove avatarFile from updateDto to avoid EntityPropertyNotFoundError
+    const { avatarFile, ...updateData } = updateDto;
+    
+    await this.userRepository.update(userId, {
+      ...updateData,
+      avatar,
+    });
+    return this.userRepository.findOne({ where: { id: userId } });
   }
 }
