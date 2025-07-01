@@ -20,7 +20,8 @@ npm run migration:run
 ## generate migration
 npm run migration:create
 
-
+## auto generate migrations file 
+npm run migration:generate src/database/migrations/{name}
 
  ## xoá hết dữ liệu để chạy lại migrate 
 
