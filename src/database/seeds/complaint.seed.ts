@@ -71,9 +71,9 @@ export const complaintSeed = async (dataSource: DataSource) => {
           receivedContent: 'Nội dung không phù hợp'
         }
       },
-      userId: 3,
-      orderId: 3,
-      videoId: 2,
+      userId: 1,
+      orderId: 1,
+      videoId: 1,
     },
     {
       title: 'Vấn đề thanh toán',
@@ -96,8 +96,9 @@ export const complaintSeed = async (dataSource: DataSource) => {
           paymentDate: '2024-01-18'
         }
       },
-      userId: 4,
-      orderId: 4,
+      userId: 1,
+      orderId: 1,
+      videoId: 1,
     },
     {
       title: 'Yêu cầu chỉnh sửa',
@@ -125,9 +126,9 @@ export const complaintSeed = async (dataSource: DataSource) => {
           ]
         }
       },
-      userId: 5,
-      orderId: 5,
-      videoId: 3,
+      userId: 1,
+      orderId: 1,
+      videoId: 1,
     },
   ];
 
