@@ -1,7 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { BaseEntity } from "../../../common/entity/base-entity";
 import { Order } from "src/modules/orders/entities/order.entity";
 import { User } from "src/modules/users/user.entity";
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, UpdateDateColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 
 
 export enum PaymentStatus { 
@@ -23,7 +24,7 @@ export enum PaymentMethod {
 }
 
 @Entity('payment')
-export class Payment {
+export class Payment extends BaseEntity {
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
@@ -58,11 +59,4 @@ export class Payment {
 
   @Column({ type: 'json', nullable: true })
   metadata?: Record<string, any>;
-
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 }
