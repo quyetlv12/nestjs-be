@@ -64,27 +64,27 @@ export class ChatController {
 
   @Post(':id/messages')
   // @Permissions('chat:send')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/chat-images',
-        filename: (req, file, cb) => {
-          const randomName = uuidv4();
-          return cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-      fileFilter: (req, file, cb) => {
-        if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-          cb(null, true);
-        } else {
-          cb(new Error('Only image files are allowed!'), false);
-        }
-      },
-      limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB
-      },
-    }),
-  )
+  // @UseInterceptors(
+  //   FileInterceptor('image', {
+  //     storage: diskStorage({
+  //       destination: './uploads/chat-images',
+  //       filename: (req, file, cb) => {
+  //         const randomName = uuidv4();
+  //         return cb(null, `${randomName}${extname(file.originalname)}`);
+  //       },
+  //     }),
+  //     fileFilter: (req, file, cb) => {
+  //       if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+  //         cb(null, true);
+  //       } else {
+  //         cb(new Error('Only image files are allowed!'), false);
+  //       }
+  //     },
+  //     limits: {
+  //       fileSize: 5 * 1024 * 1024, // 5MB
+  //     },
+  //   }),
+  // )
   async sendMessage(
     @CurrentUser('id') currentUserId: number,
     @Param('id', ParseIntPipe) chatId: number,
