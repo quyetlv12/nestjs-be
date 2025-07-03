@@ -3,7 +3,7 @@ export const dbConfig = {
     host: 'localhost',
     port: 5432,
     username:  'postgres',
-    password:  '1',
-    database:  'cameo',
+    password:  '123456789',
+    database:  'nestdb',
 
 }

@@ -1,6 +1,34 @@
-import { Order, OrderStatus, RecipientType, VideoProtocolMethod } from '../../modules/orders/entities/order.entity';
+import { Order } from '../../modules/orders/entities/order.entity';
 import { User } from '../../modules/users/user.entity';
 import { DataSource } from 'typeorm';
+
+// Các giá trị enum mapping đúng với migration
+const VIDEO_PROTOCOL_METHOD = {
+  '24hours': '24hours',
+  '7days': '7days',
+};
+const RECIPIENT = {
+  SOMEONE_ELSE: 'someone_else',
+  MYSELF: 'myself',
+};
+const ORDER_STATUS = {
+  PENDING: 'pending',
+  CANCELLED: 'cancelled',
+  PAID: 'paid',
+  PROCESSING: 'processing',
+  SENT_VIDEO: 'sent_video',
+  COMPLETED: 'completed',
+  COMPLAINT: 'complaint',
+  RESOLVING: 'resolving',
+  REFUNDED: 'refunded',
+  REJECTED: 'rejected',
+};
+
+const PAYMENT_METHOD = {
+  CREDIT_CARD: 'CREDIT_CARD',
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  MOMO: 'MOMO',
+};
 
 export const seedOrders = async (dataSource: DataSource) => {
   const orderRepo = dataSource.getRepository(Order);
@@ -9,22 +37,21 @@ export const seedOrders = async (dataSource: DataSource) => {
   // Lấy users
   const user = await userRepo.findOne({ where: { email: 'user@example.com' } });
   const talent = await userRepo.findOne({ where: { email: 'talent@example.com' } });
-  
+
   if (!user || !talent) {
     console.warn('⚠️ User or talent not found');
     return;
   }
 
-
   const orders = [
     {
       type: 'birthday_video',
       email: 'customer1@example.com',
-      video_protocol_method: VideoProtocolMethod.TWENTY_FOUR_HOURS,
+      video_protocol_method: VIDEO_PROTOCOL_METHOD['24hours'],
       talentId: talent.id,
-      recipient: RecipientType.SOMEONE_ELSE,
+      recipient: RECIPIENT.SOMEONE_ELSE,
       for_gender: 'female',
-      status: OrderStatus.PENDING,
+      status: ORDER_STATUS.PENDING,
       price: 150000,
       paymentMethod: 'credit_card',
       request_details: 'Tôi muốn một video chúc mừng sinh nhật cho bạn gái tôi. Cô ấy thích nhạc pop và màu hồng.',
@@ -38,11 +65,11 @@ export const seedOrders = async (dataSource: DataSource) => {
     {
       type: 'anniversary_video',
       email: 'customer2@example.com',
-      video_protocol_method: VideoProtocolMethod.SEVEN_DAYS,
+      video_protocol_method: VIDEO_PROTOCOL_METHOD['7days'],
       talentId: talent.id,
-      recipient: RecipientType.MYSELF,
+      recipient: RECIPIENT.MYSELF,
       for_gender: 'male',
-      status: OrderStatus.PROCESSING,
+      status: ORDER_STATUS.PROCESSING,
       price: 200000,
       paymentMethod: 'bank_transfer',
       paymentDate: new Date('2024-01-15'),
@@ -57,11 +84,11 @@ export const seedOrders = async (dataSource: DataSource) => {
     {
       type: 'graduation_video',
       email: 'customer3@example.com',
-      video_protocol_method: VideoProtocolMethod.TWENTY_FOUR_HOURS,
+      video_protocol_method: VIDEO_PROTOCOL_METHOD['24hours'],
       talentId: talent.id,
-      recipient: RecipientType.SOMEONE_ELSE,
+      recipient: RECIPIENT.SOMEONE_ELSE,
       for_gender: 'male',
-      status: OrderStatus.COMPLETED,
+      status: ORDER_STATUS.COMPLETED,
       price: 180000,
       paymentMethod: 'momo',
       paymentDate: new Date('2024-01-10'),
@@ -76,11 +103,11 @@ export const seedOrders = async (dataSource: DataSource) => {
     {
       type: 'wedding_video',
       email: 'customer4@example.com',
-      video_protocol_method: VideoProtocolMethod.SEVEN_DAYS,
+      video_protocol_method: VIDEO_PROTOCOL_METHOD['7days'],
       talentId: talent.id,
-      recipient: RecipientType.SOMEONE_ELSE,
+      recipient: RECIPIENT.SOMEONE_ELSE,
       for_gender: 'female',
-      status: OrderStatus.COMPLAINT,
+      status: ORDER_STATUS.COMPLAINT,
       price: 300000,
       paymentMethod: 'credit_card',
       paymentDate: new Date('2024-01-05'),
@@ -95,11 +122,11 @@ export const seedOrders = async (dataSource: DataSource) => {
     {
       type: 'promotion_video',
       email: 'customer5@example.com',
-      video_protocol_method: VideoProtocolMethod.TWENTY_FOUR_HOURS,
+      video_protocol_method: VIDEO_PROTOCOL_METHOD['24hours'],
       talentId: talent.id,
-      recipient: RecipientType.MYSELF,
+      recipient: RECIPIENT.MYSELF,
       for_gender: 'male',
-      status: OrderStatus.REFUNDED,
+      status: ORDER_STATUS.REFUNDED,
       price: 120000,
       paymentMethod: 'bank_transfer',
       request_details: 'Video chúc mừng thăng chức cho đồng nghiệp. Anh ấy vừa được thăng làm trưởng phòng.',
@@ -113,11 +140,11 @@ export const seedOrders = async (dataSource: DataSource) => {
     {
       type: 'retirement_video',
       email: 'customer6@example.com',
-      video_protocol_method: VideoProtocolMethod.SEVEN_DAYS,
+      video_protocol_method: VIDEO_PROTOCOL_METHOD['7days'],
       talentId: talent.id,
-      recipient: RecipientType.SOMEONE_ELSE,
+      recipient: RECIPIENT.SOMEONE_ELSE,
       for_gender: 'male',
-      status: OrderStatus.REJECTED,
+      status: ORDER_STATUS.REJECTED,
       price: 250000,
       paymentMethod: 'credit_card',
       request_details: 'Video chúc mừng nghỉ hưu cho bố. Bố tôi vừa nghỉ hưu sau 30 năm làm việc.',
@@ -131,18 +158,18 @@ export const seedOrders = async (dataSource: DataSource) => {
   ];
 
   for (const orderData of orders) {
-    const exists = await orderRepo.findOneBy({ 
+    const exists = await orderRepo.findOneBy({
       email: orderData.email,
-      type: orderData.type 
+      type: orderData.type,
     });
-    
-    if (!exists) {
-      const order = orderRepo.create(orderData);
-      await orderRepo.save(order);
-      console.log(`✅ Seeded order: ${orderData.type} for ${orderData.email}`);
-    } else {
-      console.log(`ℹ️ Order ${orderData.type} for ${orderData.email} already exists`);
-    }
+
+    // if (!exists) {
+    //   const order = orderRepo.create(orderData);
+    //   await orderRepo.save(order);
+    //   console.log(`✅ Seeded order: ${orderData.type} for ${orderData.email}`);
+    // } else {
+    //   console.log(`ℹ️ Order ${orderData.type} for ${orderData.email} already exists`);
+    // }
   }
 
   console.log(`🎉 Seeded ${orders.length} orders`);
@@ -160,4 +187,4 @@ if (require.main === module) {
   }).catch((err) => {
     console.error('❌ Error running order seeder', err);
   });
-} 
+}
