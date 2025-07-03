@@ -18,8 +18,8 @@ dataSource.initialize().then(async () => {
   await seedVideos(dataSource);
   await seedComments(dataSource);
   await seedTalents(dataSource);
-  await seedOrders(dataSource);
-  await complaintSeed(dataSource);
+  // await seedOrders(dataSource);
+  // await complaintSeed(dataSource);
   await dataSource.destroy();
   console.log('🌱 Done seeding');
 }).catch((err) => {
