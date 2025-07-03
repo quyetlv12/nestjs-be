@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { BaseEntity } from "src/common/entity/base-entity";
 import { Order } from "src/modules/orders/entities/order.entity";
 import { User } from "src/modules/users/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
@@ -24,7 +23,7 @@ export enum PaymentMethod {
 }
 
 @Entity('payment')
-export class Payment extends BaseEntity {
+export class Payment {
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
