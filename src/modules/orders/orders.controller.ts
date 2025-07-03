@@ -23,8 +23,8 @@ import { JwtTokenService } from '../../common/services/jwt.service';
 import { OrderSearchRequestDto } from './dto/order-search-request-dto';
 import { PageResponseDto } from '../../common/dto/page-response-dto';
 import { Role } from '../roles/entities/role.entity';
-import { HaveRole } from 'src/common/decorators/role.decorator';
-import { RoleConstants } from 'src/common/constants/role.contants';
+import { HaveRole } from '../../common/decorators/role.decorator';
+import { RoleConstants } from '../../common/constants/role.contants';
 
 @ApiTags('orders')
 @ApiBearerAuth('JWT-auth')
