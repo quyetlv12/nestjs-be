@@ -14,7 +14,7 @@ import { PermissionsGuard } from '../../common/guards/permissions.guard';
   imports: [
     TypeOrmModule.forFeature([Order, User, Video]),
     JwtModule.register({
-      secret: 'mysecret',
+      secret:   'mysecret',
       signOptions: { expiresIn: '7d' },
     }),
   ],

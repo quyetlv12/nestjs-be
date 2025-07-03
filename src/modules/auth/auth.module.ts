@@ -15,7 +15,7 @@ import { JwtTokenService } from 'src/common/services/jwt.service';
     TypeOrmModule.forFeature([Role]),
     PassportModule,
     JwtModule.register({
-      secret: 'mysecret',
+      secret:   'mysecret',
       signOptions: { expiresIn: '7d' },
     }),
   ],

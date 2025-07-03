@@ -6,12 +6,12 @@ class SocketIOTest {
         this.socket = null;
         this.currentChatId = null;
         this.isConnected = false;
-        this.serverUrl = 'http://localhost:3000';
+        this.serverUrl = 'http://localhost:4000';
         this.token = null;
     }
 
     // Initialize with token
-    init(token, serverUrl = 'http://localhost:3000') {
+    init(token, serverUrl = 'http://localhost:4000') {
         this.token = token;
         this.serverUrl = serverUrl;
         console.log('🔧 Socket.IO Test initialized');
@@ -31,7 +31,7 @@ class SocketIOTest {
         }
 
         try {
-            this.socket = io(`${this.serverUrl}/chat`, {
+            this.socket = io(`${this.serverUrl}/chat-socket`, {
                 auth: { token: this.token },
                 transports: ['websocket', 'polling']
             });

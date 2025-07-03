@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Socket.IO Chat Test</title>
+    <title>Socket.IO Debug Test</title>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 1200px;
             margin: 20px auto;
             padding: 20px;
             background: #f5f5f5;
@@ -27,12 +27,16 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            font-family: monospace;
         }
         button {
             background: #007bff;
@@ -63,40 +67,32 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-        .messages {
-            height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 10px;
-            background: #f9f9f9;
-            margin: 10px 0;
-        }
-        .message {
-            margin-bottom: 8px;
-            padding: 8px;
-            border-radius: 4px;
-        }
-        .message.sent {
-            background: #007bff;
-            color: white;
-            margin-left: 20%;
-        }
-        .message.received {
-            background: #e9ecef;
-            color: #333;
-            margin-right: 20%;
-        }
-        .message.system {
-            background: #ffc107;
-            color: #333;
-            text-align: center;
-        }
         .log {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
             padding: 10px;
-            height: 150px;
+            height: 300px;
             overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error {
+            color: #dc3545;
+        }
+        .success {
+            color: #28a745;
+        }
+        .warning {
+            color: #ffc107;
+        }
+        .info {
+            color: #17a2b8;
+        }
+        .token-info {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
             font-family: monospace;
             font-size: 12px;
         }
@@ -104,7 +100,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔌 Simple Socket.IO Chat Test</h1>
+        <h1>🔍 Socket.IO Debug Test</h1>
         
         <div class="form-group">
             <label for="serverUrl">Server URL:</label>
@@ -113,7 +109,7 @@
         
         <div class="form-group">
             <label for="token">JWT Token:</label>
-            <input type="text" id="token" placeholder="Enter your JWT token">
+            <textarea id="token" placeholder="Enter your JWT token here"></textarea>
         </div>
         
         <div class="form-group">
@@ -121,33 +117,26 @@
             <input type="number" id="chatId" value="1">
         </div>
         
-        <div class="form-group">
-            <label for="messageType">Message Type:</label>
-            <select id="messageType">
-                <option value="text">Text</option>
-                <option value="image">Image</option>
-                <option value="file">File</option>
-            </select>
-        </div>
-        
+        <button onclick="decodeToken()">🔓 Decode Token</button>
         <button onclick="connect()">🔗 Connect</button>
         <button onclick="disconnect()">❌ Disconnect</button>
         <button onclick="joinChat()">👥 Join Chat</button>
-        <button onclick="leaveChat()">🚪 Leave Chat</button>
-        <button onclick="clearMessages()">🗑️ Clear Messages</button>
+        <button onclick="sendMessage()">📤 Send Message</button>
+        <button onclick="clearLog()">🗑️ Clear Log</button>
         
         <div id="status" class="status disconnected">Disconnected</div>
+        
+        <div id="tokenInfo" class="token-info" style="display: none;">
+            <strong>Token Info:</strong>
+            <div id="tokenDetails"></div>
+        </div>
         
         <div class="form-group">
             <label for="messageInput">Message:</label>
             <input type="text" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
-            <button onclick="sendMessage()">📤 Send</button>
         </div>
         
-        <h3>💬 Messages:</h3>
-        <div id="messages" class="messages"></div>
-        
-        <h3>📋 Log:</h3>
+        <h3>📋 Debug Log:</h3>
         <div id="log" class="log"></div>
     </div>
 
@@ -160,7 +149,7 @@
             const logDiv = document.getElementById('log');
             const time = new Date().toLocaleTimeString();
             const entry = document.createElement('div');
-            entry.style.color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'black';
+            entry.className = type;
             entry.textContent = `[${time}] ${message}`;
             logDiv.appendChild(entry);
             logDiv.scrollTop = logDiv.scrollHeight;
@@ -178,19 +167,48 @@
             }
         }
 
-        function addMessage(content, type = 'received', sender = 'System') {
-            const messagesDiv = document.getElementById('messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            
-            if (type === 'system') {
-                messageDiv.textContent = content;
-            } else {
-                messageDiv.textContent = `${sender}: ${content}`;
+        function decodeToken() {
+            const token = document.getElementById('token').value.trim();
+            if (!token) {
+                log('No token provided', 'error');
+                return;
             }
-            
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            try {
+                // Decode JWT token (header.payload.signature)
+                const parts = token.split('.');
+                if (parts.length !== 3) {
+                    log('Invalid JWT token format', 'error');
+                    return;
+                }
+
+                const payload = JSON.parse(atob(parts[1]));
+                const header = JSON.parse(atob(parts[0]));
+                
+                const tokenInfo = document.getElementById('tokenInfo');
+                const tokenDetails = document.getElementById('tokenDetails');
+                
+                tokenDetails.innerHTML = `
+                    <strong>Header:</strong><br>
+                    ${JSON.stringify(header, null, 2)}<br><br>
+                    <strong>Payload:</strong><br>
+                    ${JSON.stringify(payload, null, 2)}<br><br>
+                    <strong>Expiration:</strong> ${payload.exp ? new Date(payload.exp * 1000).toLocaleString() : 'No expiration'}<br>
+                    <strong>Issued At:</strong> ${payload.iat ? new Date(payload.iat * 1000).toLocaleString() : 'No issued at'}<br>
+                    <strong>Is Expired:</strong> ${payload.exp && payload.exp < Math.floor(Date.now() / 1000) ? 'YES' : 'NO'}
+                `;
+                
+                tokenInfo.style.display = 'block';
+                log('Token decoded successfully', 'success');
+                
+                // Check if token is expired
+                if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+                    log('⚠️ WARNING: Token is expired!', 'warning');
+                }
+                
+            } catch (error) {
+                log(`Token decode error: ${error.message}`, 'error');
+            }
         }
 
         function connect() {
@@ -206,40 +224,67 @@
                 socket.disconnect();
             }
 
+            log(`Attempting to connect to ${serverUrl}`, 'info');
+            log(`Token length: ${token.length} characters`, 'info');
+
             try {
-                socket = io(`${serverUrl}/chat-socket`, {
+                socket = io(`${serverUrl}`, {
                     auth: { token },
-                    transports: ['websocket', 'polling']
+                    transports: ['websocket', 'polling'],
+                    timeout: 20000,
+                    reconnection: true,
+                    reconnectionAttempts: 5,
+                    reconnectionDelay: 1000
                 });
 
+                // Connection events
                 socket.on('connect', () => {
                     updateStatus(true);
-                    log('Connected to Socket.IO server', 'success');
-                    addMessage('Connected to chat server!', 'system');
+                    log('✅ Connected to Socket.IO server', 'success');
+                    log(`Socket ID: ${socket.id}`, 'info');
                 });
 
                 socket.on('disconnect', (reason) => {
                     updateStatus(false);
-                    log(`Disconnected: ${reason}`, 'error');
-                    addMessage('Disconnected from chat server', 'system');
+                    log(`❌ Disconnected: ${reason}`, 'error');
+                    
+                    if (reason === 'io server disconnect') {
+                        log('🔍 Server actively disconnected the client', 'warning');
+                        log('💡 This usually means authentication failed', 'warning');
+                        log('💡 Check: 1) Token is valid 2) Token is not expired 3) Server is running', 'warning');
+                    }
                 });
 
                 socket.on('connect_error', (error) => {
                     updateStatus(false);
-                    log(`Connection error: ${error.message}`, 'error');
-                    addMessage('Connection failed!', 'system');
+                    log(`❌ Connection error: ${error.message}`, 'error');
+                    log(`Error details: ${JSON.stringify(error)}`, 'error');
                 });
 
+                // Chat events
                 socket.on('receive_message', (msg) => {
-                    const content = msg.type === 'text' ? msg.content : `[${msg.type.toUpperCase()}] ${msg.content || 'File/Image'}`;
-                    addMessage(content, 'received', `User ${msg.senderId}`);
-                    log(`Received message from User ${msg.senderId}`, 'success');
+                    log(`📨 Received message: ${JSON.stringify(msg)}`, 'success');
                 });
 
-                log('Attempting to connect...', 'info');
+                socket.on('user_joined', (data) => {
+                    log(`👥 User joined: ${JSON.stringify(data)}`, 'info');
+                });
+
+                socket.on('user_left', (data) => {
+                    log(`🚪 User left: ${JSON.stringify(data)}`, 'warning');
+                });
+
+                // Debug all events
+                socket.onAny((eventName, ...args) => {
+                    if (!['connect', 'disconnect', 'connect_error'].includes(eventName)) {
+                        log(`🔍 Event: ${eventName} - ${JSON.stringify(args)}`, 'info');
+                    }
+                });
+
+                log('🔄 Socket connection attempt started...', 'info');
 
             } catch (error) {
-                log(`Socket creation error: ${error.message}`, 'error');
+                log(`❌ Socket creation error: ${error.message}`, 'error');
             }
         }
 
@@ -248,52 +293,38 @@
                 socket.disconnect();
                 socket = null;
                 currentChatId = null;
-                log('Manually disconnected', 'error');
+                log('🔌 Manually disconnected', 'warning');
             }
         }
 
         function joinChat() {
             if (!socket || !isConnected) {
-                log('Not connected to server!', 'error');
+                log('❌ Not connected to server!', 'error');
                 return;
             }
 
             const chatId = Number(document.getElementById('chatId').value);
             if (!chatId) {
-                log('Please enter a valid Chat ID!', 'error');
+                log('❌ Please enter a valid Chat ID!', 'error');
                 return;
             }
 
+            log(`👥 Attempting to join chat ${chatId}...`, 'info');
             socket.emit('join_chat', { chatId });
             currentChatId = chatId;
-            addMessage(`Joined chat room ${chatId}`, 'system');
-            log(`Joined chat ${chatId}`, 'success');
-        }
-
-        function leaveChat() {
-            if (!socket || !currentChatId) {
-                log('Not in any chat room!', 'error');
-                return;
-            }
-
-            socket.emit('leave_chat', { chatId: currentChatId });
-            addMessage(`Left chat room ${currentChatId}`, 'system');
-            log(`Left chat ${currentChatId}`, 'error');
-            currentChatId = null;
         }
 
         function sendMessage() {
             if (!socket || !isConnected) {
-                log('Not connected to server!', 'error');
+                log('❌ Not connected to server!', 'error');
                 return;
             }
 
             const chatId = currentChatId || Number(document.getElementById('chatId').value);
             const content = document.getElementById('messageInput').value.trim();
-            const messageType = document.getElementById('messageType').value;
 
             if (!chatId || !content) {
-                log('Please enter Chat ID and message!', 'error');
+                log('❌ Please enter Chat ID and message!', 'error');
                 return;
             }
 
@@ -301,16 +332,14 @@
                 chatId,
                 message: { 
                     content, 
-                    type: messageType 
+                    type: 'text' 
                 }
             };
 
+            log(`📤 Sending message: ${JSON.stringify(messageData)}`, 'info');
             socket.emit('send_message', messageData);
             
-            addMessage(content, 'sent', 'You');
             document.getElementById('messageInput').value = '';
-            
-            log(`Sent message to chat ${chatId}`, 'success');
         }
 
         function handleKeyPress(event) {
@@ -319,28 +348,21 @@
             }
         }
 
-        function clearMessages() {
-            document.getElementById('messages').innerHTML = '';
+        function clearLog() {
             document.getElementById('log').innerHTML = '';
-            log('Messages and log cleared', 'info');
+            log('🗑️ Log cleared', 'info');
         }
 
-        // Auto-connect when token is entered
-        document.getElementById('token').addEventListener('change', function() {
+        // Auto-decode token when entered
+        document.getElementById('token').addEventListener('input', function() {
             if (this.value.trim()) {
-                setTimeout(connect, 500);
-            }
-        });
-
-        // Auto-join when chat ID is entered
-        document.getElementById('chatId').addEventListener('change', function() {
-            if (socket && isConnected && this.value) {
-                setTimeout(joinChat, 500);
+                setTimeout(decodeToken, 500);
             }
         });
 
         // Initialize
-        log('Simple Socket.IO Chat Test initialized', 'success');
+        log('🔍 Socket.IO Debug Test initialized', 'success');
+        log('💡 Enter a JWT token to start debugging', 'info');
     </script>
 </body>
 </html> 

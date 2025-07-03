@@ -7,17 +7,19 @@ import { ChatGateway } from './chat.gateway';
 import { Chat } from './entities/chat.entity';
 import { ChatMessage } from './entities/chat-message.entity';
 import { User } from '../users/user.entity';
+import { JwtTokenService } from 'src/common/services/jwt.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Chat, ChatMessage, User]),
+    // auth.module.ts hoặc app.module.ts
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'your-secret-key',
-      signOptions: { expiresIn: '24h' },
-    }),
+      secret:   'mysecret',
+      signOptions: { expiresIn: '1d' },
+    })
   ],
   controllers: [ChatController],
-  providers: [ChatService, ChatGateway],
+  providers: [ChatService, ChatGateway, JwtTokenService],
   exports: [ChatService, ChatGateway],
 })
-export class ChatModule {} 
+export class ChatModule { } 

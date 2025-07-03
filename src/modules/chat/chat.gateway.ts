@@ -19,7 +19,6 @@ import { UseGuards, Logger } from '@nestjs/common';
   cors: {
     origin: '*',
   },
-  namespace: '/chat',
 })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -38,15 +37,22 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   async handleConnection(client: Socket) {
     try {
-      const token = client.handshake.auth?.token || client.handshake.headers['authorization']?.replace('Bearer ', '');
+      const token = client.handshake.auth?.token;
+      console.log('[Gateway] Token received:', token);
+  
       if (!token) {
+        console.log('[Gateway] ❌ No token provided');
         client.disconnect();
         return;
       }
-      const payload = this.jwtService.verify(token);
+  
+      const payload = this.jwtService.verify(token); // <-- có thể throw lỗi
+      console.log('[Gateway] ✅ JWT payload:', payload);
+  
       client.data.user = payload;
       this.logger.log(`Client connected: ${payload.id}`);
     } catch (err) {
+      console.error('[Gateway] ❌ JWT verify failed:', err.message);
       client.disconnect();
     }
   }

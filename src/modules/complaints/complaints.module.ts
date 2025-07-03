@@ -14,7 +14,7 @@ import { UploadModule } from '../upload/upload.module';
   imports: [
     TypeOrmModule.forFeature([Complaint, User, Order, Video]),
     JwtModule.register({
-      secret: 'mysecret',
+      secret:   'mysecret',
       signOptions: { expiresIn: '7d' },
     }),
     UploadModule,

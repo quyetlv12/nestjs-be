@@ -12,7 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Video , User]), CommentsModule , JwtModule.register({
-    secret: 'mysecret',
+    secret:   'mysecret',
     signOptions: { expiresIn: '7d' },
   })],
   exports: [VideoService],

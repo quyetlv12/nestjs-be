@@ -56,11 +56,11 @@ export class CreateChatTables1750600000000 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
-            name: 'chat_id',
+            name: 'chatId',
             type: 'int',
           },
           {
-            name: 'sender_id',
+            name: 'senderId',
             type: 'int',
           },
           {
@@ -75,22 +75,22 @@ export class CreateChatTables1750600000000 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: 'image_url',
+            name: 'imageUrl',
             type: 'varchar',
             isNullable: true,
           },
           {
-            name: 'file_name',
+            name: 'fileName',
             type: 'varchar',
             isNullable: true,
           },
           {
-            name: 'file_url',
+            name: 'fileUrl',
             type: 'varchar',
             isNullable: true,
           },
           {
-            name: 'is_read',
+            name: 'isRead',
             type: 'boolean',
             default: false,
           },
@@ -144,7 +144,7 @@ export class CreateChatTables1750600000000 implements MigrationInterface {
       await queryRunner.createForeignKey(
         'chat_messages',
         new TableForeignKey({
-          columnNames: ['chat_id'],
+          columnNames: ['chatId'],
           referencedColumnNames: ['id'],
           referencedTableName: 'chats',
           onDelete: 'CASCADE',
@@ -158,7 +158,7 @@ export class CreateChatTables1750600000000 implements MigrationInterface {
       await queryRunner.createForeignKey(
         'chat_messages',
         new TableForeignKey({
-          columnNames: ['sender_id'],
+          columnNames: ['senderId'],
           referencedColumnNames: ['id'],
           referencedTableName: 'user',
           onDelete: 'CASCADE',

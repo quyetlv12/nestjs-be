@@ -48,14 +48,27 @@ export class ChatService {
     return await this.chatRepository.save(chat);
   }
 
-  async getChats(currentUserId: number): Promise<Chat[]> {
-    return await this.chatRepository.find({
+  async getChats(currentUserId: number): Promise<any[]> {
+    const chats = await this.chatRepository.find({
       where: [
         { participant1Id: currentUserId, isActive: true },
         { participant2Id: currentUserId, isActive: true },
       ],
-      relations: ['participant1', 'participant2', 'messages'],
+      relations: ['participant1', 'participant2'],
       order: { updatedAt: 'DESC' },
+    });
+
+    return chats.map(chat => {
+      let otherParticipant;
+      if (chat.participant1Id === currentUserId) {
+        otherParticipant = chat.participant2;
+      } else {
+        otherParticipant = chat.participant1;
+      }
+      return {
+        ...chat,
+        displayUser: otherParticipant,
+      };
     });
   }
 

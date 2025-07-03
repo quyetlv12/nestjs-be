@@ -1,92 +1,66 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  Param,
+  ParseIntPipe,
   Post,
   Put,
-  Delete,
-  Body,
-  Param,
-  UseGuards,
-  UseInterceptors,
   UploadedFile,
-  ParseIntPipe,
-  Query,
+  UseGuards
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { Token } from 'src/common/decorators/token.decorator';
+import { JwtTokenService } from 'src/common/services/jwt.service';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { SendMessageDto } from './dto/send-message.dto';
-import { MarkAsReadDto } from './dto/mark-as-read.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { PermissionsGuard } from '../../common/guards/permissions.guard';
-import { Permissions } from '../../common/decorators/permissions.decorator';
 import { MessageType } from './entities/chat-message.entity';
 
-@Controller('chat')
+@Controller('api/chat')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(private readonly chatService: ChatService, private readonly jwtTokenService: JwtTokenService,) { }
 
   @Post()
-  // @Permissions('chat:create')
   async createChat(
-    @CurrentUser('id') currentUserId: number,
     @Body() createChatDto: CreateChatDto,
+    @Token() token: string
   ) {
-    return await this.chatService.createChat(currentUserId, createChatDto);
+    const tokenData = this.jwtTokenService.getTokenData(token);
+    return await this.chatService.createChat(tokenData?.userId, createChatDto);
   }
 
   @Get()
-  // @Permissions('chat:read')
-  async getChats(@CurrentUser('id') currentUserId: number) {
-    return await this.chatService.getChats(currentUserId);
+  async getChats(
+    @Token() token: string
+  ) {
+    const tokenData = this.jwtTokenService.getTokenData(token);
+
+    return await this.chatService.getChats(tokenData?.userId);
   }
 
   @Get('unread-count')
-  // @Permissions('chat:read')
   async getUnreadCount(@CurrentUser('id') currentUserId: number) {
     const count = await this.chatService.getUnreadCount(currentUserId);
     return { unreadCount: count };
   }
 
   @Get(':id')
-  @Permissions('chat:read')
   async getChatById(
-    @CurrentUser('id') currentUserId: number,
+    @Token() token: string,
     @Param('id', ParseIntPipe) chatId: number,
   ) {
-    return await this.chatService.getChatById(currentUserId, chatId);
+    const tokenData = this.jwtTokenService.getTokenData(token);
+    return await this.chatService.getChatById(tokenData.userId, chatId);
   }
 
   @Post(':id/messages')
-  // @Permissions('chat:send')
-  // @UseInterceptors(
-  //   FileInterceptor('image', {
-  //     storage: diskStorage({
-  //       destination: './uploads/chat-images',
-  //       filename: (req, file, cb) => {
-  //         const randomName = uuidv4();
-  //         return cb(null, `${randomName}${extname(file.originalname)}`);
-  //       },
-  //     }),
-  //     fileFilter: (req, file, cb) => {
-  //       if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-  //         cb(null, true);
-  //       } else {
-  //         cb(new Error('Only image files are allowed!'), false);
-  //       }
-  //     },
-  //     limits: {
-  //       fileSize: 5 * 1024 * 1024, // 5MB
-  //     },
-  //   }),
-  // )
   async sendMessage(
-    @CurrentUser('id') currentUserId: number,
+    @Token() token: string,
     @Param('id', ParseIntPipe) chatId: number,
     @Body() sendMessageDto: SendMessageDto,
     @UploadedFile() image?: Express.Multer.File,
@@ -100,8 +74,10 @@ export class ChatController {
       sendMessageDto.type = MessageType.IMAGE;
     }
 
+    const tokenData = this.jwtTokenService.getTokenData(token);
+
     return await this.chatService.sendMessage(
-      currentUserId,
+      tokenData?.userId,
       chatId,
       sendMessageDto,
       imageUrl,

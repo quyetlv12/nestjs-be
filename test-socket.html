@@ -3,326 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Socket.IO Chat Test - NestJS</title>
+  <title>Socket.IO Realtime Chat - Gateway Full Feature</title>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
-
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .header h1 {
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
-
-    .header p {
-      opacity: 0.9;
-    }
-
-    .main-content {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .control-panel {
-      background: #f8f9fa;
-      padding: 20px;
-      border-radius: 10px;
-      border: 1px solid #e9ecef;
-    }
-
-    .control-panel h3 {
-      margin-bottom: 15px;
-      color: #495057;
-      border-bottom: 2px solid #667eea;
-      padding-bottom: 5px;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 600;
-      color: #495057;
-    }
-
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ced4da;
-      border-radius: 5px;
-      font-size: 14px;
-    }
-
-    .form-group input:focus, .form-group select:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-    }
-
-    .btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      margin-right: 10px;
-      margin-bottom: 10px;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-secondary {
-      background: #6c757d;
-    }
-
-    .btn-success {
-      background: #28a745;
-    }
-
-    .btn-danger {
-      background: #dc3545;
-    }
-
-    .btn-warning {
-      background: #ffc107;
-      color: #212529;
-    }
-
-    .chat-area {
-      background: white;
-      border: 1px solid #e9ecef;
-      border-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      height: 600px;
-    }
-
-    .chat-header {
-      background: #f8f9fa;
-      padding: 15px;
-      border-bottom: 1px solid #e9ecef;
-      border-radius: 10px 10px 0 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .chat-header h3 {
-      color: #495057;
-    }
-
-    .status-indicator {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #dc3545;
-    }
-
-    .status-dot.connected {
-      background: #28a745;
-    }
-
-    .messages-container {
-      flex: 1;
-      padding: 15px;
-      overflow-y: auto;
-      background: #f8f9fa;
-    }
-
-    .message {
-      margin-bottom: 10px;
-      padding: 10px;
-      border-radius: 10px;
-      max-width: 80%;
-      word-wrap: break-word;
-    }
-
-    .message.sent {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      margin-left: auto;
-    }
-
-    .message.received {
-      background: white;
-      border: 1px solid #e9ecef;
-      color: #495057;
-    }
-
-    .message.system {
-      background: #ffc107;
-      color: #212529;
-      text-align: center;
-      margin: 10px auto;
-      max-width: 100%;
-    }
-
-    .message .time {
-      font-size: 12px;
-      opacity: 0.7;
-      margin-top: 5px;
-    }
-
-    .message .sender {
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-
-    .chat-input {
-      padding: 15px;
-      border-top: 1px solid #e9ecef;
-      display: flex;
-      gap: 10px;
-    }
-
-    .chat-input input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ced4da;
-      border-radius: 5px;
-      font-size: 14px;
-    }
-
-    .chat-input input:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    .typing-indicator {
-      padding: 5px 15px;
-      font-style: italic;
-      color: #6c757d;
-      font-size: 12px;
-    }
-
-    .test-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .log-area {
-      background: #f8f9fa;
-      border: 1px solid #e9ecef;
-      border-radius: 10px;
-      padding: 15px;
-      margin-top: 20px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .log-area h3 {
-      margin-bottom: 10px;
-      color: #495057;
-    }
-
-    .log-entry {
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      margin-bottom: 5px;
-      padding: 5px;
-      background: white;
-      border-radius: 3px;
-      border-left: 3px solid #667eea;
-    }
-
-    .log-entry.error {
-      border-left-color: #dc3545;
-      color: #dc3545;
-    }
-
-    .log-entry.success {
-      border-left-color: #28a745;
-      color: #28a745;
-    }
-
-    .log-entry.warning {
-      border-left-color: #ffc107;
-      color: #856404;
-    }
-
-    @media (max-width: 768px) {
-      .main-content {
-        grid-template-columns: 1fr;
-      }
-      
-      .test-buttons {
-        grid-template-columns: 1fr;
-      }
-    }
+    /* ... giữ nguyên style như cũ ... */
+    * {margin:0;padding:0;box-sizing:border-box;}
+    body {font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px;}
+    .container {max-width:1200px;margin:0 auto;background:white;border-radius:15px;box-shadow:0 20px 40px rgba(0,0,0,0.1);overflow:hidden;}
+    .header {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:20px;text-align:center;}
+    .header h1 {font-size:2em;margin-bottom:10px;}
+    .header p {opacity:0.9;}
+    .main-content {display:grid;grid-template-columns:1fr 2fr;gap:20px;padding:20px;}
+    .control-panel {background:#f8f9fa;padding:20px;border-radius:10px;border:1px solid #e9ecef;}
+    .control-panel h3 {margin-bottom:15px;color:#495057;border-bottom:2px solid #667eea;padding-bottom:5px;}
+    .form-group {margin-bottom:15px;}
+    .form-group label {display:block;margin-bottom:5px;font-weight:600;color:#495057;}
+    .form-group input, .form-group select {width:100%;padding:10px;border:1px solid #ced4da;border-radius:5px;font-size:14px;}
+    .form-group input:focus, .form-group select:focus {outline:none;border-color:#667eea;box-shadow:0 0 0 2px rgba(102,126,234,0.2);}
+    .btn {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:10px 20px;border-radius:5px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.3s ease;margin-right:10px;margin-bottom:10px;}
+    .btn:hover {transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,0.4);}
+    .btn-secondary {background:#6c757d;}
+    .btn-success {background:#28a745;}
+    .btn-danger {background:#dc3545;}
+    .btn-warning {background:#ffc107;color:#212529;}
+    .chat-area {background:white;border:1px solid #e9ecef;border-radius:10px;display:flex;flex-direction:column;height:600px;}
+    .chat-header {background:#f8f9fa;padding:15px;border-bottom:1px solid #e9ecef;border-radius:10px 10px 0 0;display:flex;justify-content:space-between;align-items:center;}
+    .chat-header h3 {color:#495057;}
+    .status-indicator {display:flex;align-items:center;gap:10px;}
+    .status-dot {width:10px;height:10px;border-radius:50%;background:#dc3545;}
+    .status-dot.connected {background:#28a745;}
+    .messages-container {flex:1;padding:15px;overflow-y:auto;background:#f8f9fa;}
+    .message {margin-bottom:10px;padding:10px;border-radius:10px;max-width:80%;word-wrap:break-word;}
+    .message.sent {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;margin-left:auto;}
+    .message.received {background:white;border:1px solid #e9ecef;color:#495057;}
+    .message.system {background:#ffc107;color:#212529;text-align:center;margin:10px auto;max-width:100%;}
+    .message .time {font-size:12px;opacity:0.7;margin-top:5px;}
+    .message .sender {font-weight:600;margin-bottom:5px;}
+    .chat-input {padding:15px;border-top:1px solid #e9ecef;display:flex;gap:10px;}
+    .chat-input input {flex:1;padding:10px;border:1px solid #ced4da;border-radius:5px;font-size:14px;}
+    .chat-input input:focus {outline:none;border-color:#667eea;}
+    .typing-indicator {padding:5px 15px;font-style:italic;color:#6c757d;font-size:12px;}
+    .test-buttons {display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;}
+    .log-area {background:#f8f9fa;border:1px solid #e9ecef;border-radius:10px;padding:15px;margin-top:20px;max-height:200px;overflow-y:auto;}
+    .log-area h3 {margin-bottom:10px;color:#495057;}
+    .log-entry {font-family:'Courier New',monospace;font-size:12px;margin-bottom:5px;padding:5px;background:white;border-radius:3px;border-left:3px solid #667eea;}
+    .log-entry.error {border-left-color:#dc3545;color:#dc3545;}
+    .log-entry.success {border-left-color:#28a745;color:#28a745;}
+    .log-entry.warning {border-left-color:#ffc107;color:#856404;}
+    @media (max-width:768px){.main-content{grid-template-columns:1fr;}.test-buttons{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>🔌 Socket.IO Chat Test</h1>
-      <p>NestJS Real-time Chat Testing Interface</p>
+      <h1>🔌 Socket.IO Chat Gateway Demo</h1>
+      <p>Realtime Chat - Đầy đủ chức năng như Gateway NestJS</p>
     </div>
-
     <div class="main-content">
       <div class="control-panel">
-        <h3>🔧 Connection Settings</h3>
-        
+        <h3>🔧 Kết nối & Cài đặt</h3>
         <div class="form-group">
           <label for="serverUrl">Server URL:</label>
-          <input type="text" id="serverUrl" value="http://localhost:3000" placeholder="Server URL">
+          <input type="text" id="serverUrl" value="http://localhost:4000" placeholder="Server URL">
         </div>
-
         <div class="form-group">
           <label for="token">JWT Token:</label>
           <input type="text" id="token" placeholder="Paste your JWT token here">
         </div>
-
+        <div class="form-group">
+          <label for="userId">User ID:</label>
+          <input type="text" id="userId" placeholder="Nhập userId của bạn">
+        </div>
         <div class="form-group">
           <label for="chatId">Chat ID:</label>
           <input type="number" id="chatId" value="1" placeholder="Chat ID">
         </div>
-
         <div class="form-group">
           <label for="messageType">Message Type:</label>
           <select id="messageType">
@@ -331,12 +86,10 @@
             <option value="file">File</option>
           </select>
         </div>
-
         <button class="btn" onclick="connectSocket()">🔗 Connect</button>
         <button class="btn btn-secondary" onclick="disconnectSocket()">❌ Disconnect</button>
         <button class="btn btn-success" onclick="joinChat()">👥 Join Chat</button>
         <button class="btn btn-danger" onclick="leaveChat()">🚪 Leave Chat</button>
-
         <div class="test-buttons">
           <button class="btn btn-warning" onclick="testTyping()">⌨️ Test Typing</button>
           <button class="btn btn-warning" onclick="testReconnect()">🔄 Test Reconnect</button>
@@ -344,7 +97,6 @@
           <button class="btn btn-warning" onclick="testErrorHandling()">⚠️ Test Errors</button>
         </div>
       </div>
-
       <div class="chat-area">
         <div class="chat-header">
           <h3>💬 Chat Room</h3>
@@ -353,37 +105,32 @@
             <span id="statusText">Disconnected</span>
           </div>
         </div>
-
         <div class="messages-container" id="messagesContainer">
           <div class="message system">
-            Welcome to Socket.IO Chat Test! Connect to start chatting.
+            Welcome to Socket.IO Chat Gateway! Connect to start chatting.
           </div>
         </div>
-
         <div class="typing-indicator" id="typingIndicator" style="display: none;">
           Someone is typing...
         </div>
-
         <div class="chat-input">
           <input type="text" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
           <button class="btn" onclick="sendMessage()">📤 Send</button>
         </div>
       </div>
     </div>
-
     <div class="log-area">
       <h3>📋 Event Log</h3>
       <div id="logContainer"></div>
     </div>
   </div>
-
   <script>
     let socket = null;
     let currentChatId = null;
     let isConnected = false;
     let typingTimeout = null;
+    let myUserId = null;
 
-    // Initialize
     document.addEventListener('DOMContentLoaded', function() {
       updateStatus(false);
       log('System initialized', 'success');
@@ -393,7 +140,6 @@
       isConnected = connected;
       const statusDot = document.getElementById('statusDot');
       const statusText = document.getElementById('statusText');
-      
       if (connected) {
         statusDot.className = 'status-dot connected';
         statusText.textContent = 'Connected';
@@ -412,23 +158,20 @@
       logContainer.scrollTop = logContainer.scrollHeight;
     }
 
-    function addMessage(content, type = 'received', sender = 'System') {
+    function addMessage(content, type = 'received', sender = 'System', time = null) {
       const container = document.getElementById('messagesContainer');
       const messageDiv = document.createElement('div');
       messageDiv.className = `message ${type}`;
-      
-      const time = new Date().toLocaleTimeString();
-      
+      const t = time || new Date().toLocaleTimeString();
       if (type === 'system') {
-        messageDiv.innerHTML = `<div>${content}</div><div class="time">${time}</div>`;
+        messageDiv.innerHTML = `<div>${content}</div><div class="time">${t}</div>`;
       } else {
         messageDiv.innerHTML = `
           <div class="sender">${sender}</div>
           <div>${content}</div>
-          <div class="time">${time}</div>
+          <div class="time">${t}</div>
         `;
       }
-      
       container.appendChild(messageDiv);
       container.scrollTop = container.scrollHeight;
     }
@@ -436,19 +179,18 @@
     function connectSocket() {
       const serverUrl = document.getElementById('serverUrl').value.trim();
       const token = document.getElementById('token').value.trim();
-      
-      if (!serverUrl || !token) {
-        log('Please enter server URL and JWT token!', 'error');
+      const userId = document.getElementById('userId').value.trim();
+      if (!serverUrl || !token || !userId) {
+        log('Please enter server URL, JWT token, and User ID!', 'error');
         return;
       }
-
+      myUserId = userId;
       if (socket) {
         socket.disconnect();
       }
-
       try {
-        socket = io(`${serverUrl}/chat`, {
-          auth: { token },
+        socket = io(serverUrl, {
+          auth: { token, userId },
           transports: ['websocket', 'polling'],
           timeout: 20000,
           reconnection: true,
@@ -477,17 +219,25 @@
 
         // Chat events
         socket.on('receive_message', (msg) => {
-          const content = msg.type === 'text' ? msg.content : `[${msg.type.toUpperCase()}] ${msg.content || 'File/Image'}`;
-          addMessage(content, 'received', `User ${msg.senderId}`);
+          console.log("msg" , msg);
+          
+          // msg: { chatId, senderId, content, type, createdAt }
+          const content = msg.type === 'text'
+            ? msg.content
+            : `[${msg.type.toUpperCase()}] ${msg.content || 'File/Image'}`;
+          const sender = msg.senderId == myUserId ? 'You' : `User ${msg.senderId}`;
+          const type = msg.senderId == myUserId ? 'sent' : 'received';
+          addMessage(content, type, sender, msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString() : undefined);
           log(`Received message from User ${msg.senderId}`, 'success');
         });
 
         socket.on('user_typing', (data) => {
-          showTypingIndicator(data.userId);
+          // data: { userId, chatId }
+          if (data.userId != myUserId) showTypingIndicator(data.userId);
         });
 
         socket.on('user_stopped_typing', (data) => {
-          hideTypingIndicator();
+          if (data.userId != myUserId) hideTypingIndicator();
         });
 
         socket.on('user_joined', (data) => {
@@ -500,8 +250,27 @@
           log(`User ${data.userId} left chat ${data.chatId}`, 'warning');
         });
 
-        log('Attempting to connect...', 'info');
+        socket.on('chat_history', (data) => {
+          // data: { chatId, messages: [...] }
+          addMessage(`Loaded chat history for chat ${data.chatId}`, 'system');
+          if (Array.isArray(data.messages)) {
+            data.messages.forEach(msg => {
+              const content = msg.type === 'text'
+                ? msg.content
+                : `[${msg.type.toUpperCase()}] ${msg.content || 'File/Image'}`;
+              const sender = msg.senderId == myUserId ? 'You' : `User ${msg.senderId}`;
+              const type = msg.senderId == myUserId ? 'sent' : 'received';
+              addMessage(content, type, sender, msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString() : undefined);
+            });
+          }
+        });
 
+        socket.on('error', (err) => {
+          log(`Server error: ${err.message || err}`, 'error');
+          addMessage(`Server error: ${err.message || err}`, 'system');
+        });
+
+        log('Attempting to connect...', 'info');
       } catch (error) {
         log(`Socket creation error: ${error.message}`, 'error');
       }
@@ -521,17 +290,17 @@
         log('Not connected to server!', 'error');
         return;
       }
-
       const chatId = Number(document.getElementById('chatId').value);
       if (!chatId) {
         log('Please enter a valid Chat ID!', 'error');
         return;
       }
-
-      socket.emit('join_chat', { chatId });
+      socket.emit('join_chat', { chatId, userId: myUserId });
       currentChatId = chatId;
       addMessage(`Joined chat room ${chatId}`, 'system');
       log(`Joined chat ${chatId}`, 'success');
+      // Request chat history
+      socket.emit('get_chat_history', { chatId });
     }
 
     function leaveChat() {
@@ -539,8 +308,7 @@
         log('Not in any chat room!', 'error');
         return;
       }
-
-      socket.emit('leave_chat', { chatId: currentChatId });
+      socket.emit('leave_chat', { chatId: currentChatId, userId: myUserId });
       addMessage(`Left chat room ${currentChatId}`, 'system');
       log(`Left chat ${currentChatId}`, 'warning');
       currentChatId = null;
@@ -551,30 +319,26 @@
         log('Not connected to server!', 'error');
         return;
       }
-
       const chatId = currentChatId || Number(document.getElementById('chatId').value);
       const content = document.getElementById('messageInput').value.trim();
       const messageType = document.getElementById('messageType').value;
-
       if (!chatId || !content) {
         log('Please enter Chat ID and message!', 'error');
         return;
       }
-
       const messageData = {
         chatId,
-        message: { 
-          content, 
-          type: messageType 
+        message: {
+          content,
+          type: messageType,
+          senderId: myUserId,
+          createdAt: new Date().toISOString()
         }
       };
-
       socket.emit('send_message', messageData);
-      
       // Add message to local chat
       addMessage(content, 'sent', 'You');
       document.getElementById('messageInput').value = '';
-      
       log(`Sent message to chat ${chatId}`, 'success');
     }
 
@@ -583,16 +347,13 @@
         sendMessage();
       } else {
         // Emit typing indicator
-        if (socket && isConnected && currentChatId) {
-          socket.emit('typing', { chatId: currentChatId });
-          
-          if (typingTimeout) {
-            clearTimeout(typingTimeout);
-          }
-          
+        if (socket && isConnected && (currentChatId || document.getElementById('chatId').value)) {
+          const chatId = currentChatId || Number(document.getElementById('chatId').value);
+          socket.emit('typing', { chatId, userId: myUserId });
+          if (typingTimeout) clearTimeout(typingTimeout);
           typingTimeout = setTimeout(() => {
             if (socket && isConnected) {
-              socket.emit('stop_typing', { chatId: currentChatId });
+              socket.emit('stop_typing', { chatId, userId: myUserId });
             }
           }, 1000);
         }
@@ -616,13 +377,12 @@
         log('Not connected!', 'error');
         return;
       }
-      
-      socket.emit('typing', { chatId: currentChatId || 1 });
+      const chatId = currentChatId || 1;
+      socket.emit('typing', { chatId, userId: myUserId });
       log('Emitted typing indicator', 'info');
-      
       setTimeout(() => {
         if (socket && isConnected) {
-          socket.emit('stop_typing', { chatId: currentChatId || 1 });
+          socket.emit('stop_typing', { chatId, userId: myUserId });
           log('Emitted stop typing', 'info');
         }
       }, 2000);
@@ -631,7 +391,6 @@
     function testReconnect() {
       log('Testing reconnection...', 'info');
       disconnectSocket();
-      
       setTimeout(() => {
         connectSocket();
       }, 1000);
@@ -642,7 +401,6 @@
         log('Not connected!', 'error');
         return;
       }
-
       const messages = [
         'Hello! This is test message 1',
         'How are you doing?',
@@ -650,7 +408,6 @@
         'Socket.IO is working great!',
         'End of test messages'
       ];
-
       let index = 0;
       const interval = setInterval(() => {
         if (index < messages.length) {
@@ -665,12 +422,10 @@
 
     function testErrorHandling() {
       log('Testing error scenarios...', 'info');
-      
       // Test invalid token
       const originalToken = document.getElementById('token').value;
       document.getElementById('token').value = 'invalid_token';
       connectSocket();
-      
       setTimeout(() => {
         document.getElementById('token').value = originalToken;
         log('Restored original token', 'info');
@@ -679,7 +434,12 @@
 
     // Auto-connect when token is entered
     document.getElementById('token').addEventListener('change', function() {
-      if (this.value.trim()) {
+      if (this.value.trim() && document.getElementById('userId').value.trim()) {
+        setTimeout(connectSocket, 500);
+      }
+    });
+    document.getElementById('userId').addEventListener('change', function() {
+      if (this.value.trim() && document.getElementById('token').value.trim()) {
         setTimeout(connectSocket, 500);
       }
     });
@@ -692,4 +452,4 @@
     });
   </script>
 </body>
-</html> 
+</html>
