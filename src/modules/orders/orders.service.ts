@@ -6,6 +6,7 @@ import { Order, VideoProtocolMethod, RecipientType, OrderStatus } from './entiti
 import { User } from '../users/user.entity';
 import { PageResponseDto } from '../../common/dto/page-response-dto';
 import { OrderSearchRequestDto } from './dto/order-search-request-dto';
+import { R2Service } from 'src/common/services/r2.service';
 
 @Injectable()
 export class OrdersService {
@@ -14,10 +15,11 @@ export class OrdersService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly r2Service: R2Service
+
   ) {}
 
   async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
-
     // Kiểm tra xem talent có tồn tại không
     const talent = await this.userRepository.findOne({ where: { id: createOrderDto.talentId } });
     if (!talent) {
@@ -171,12 +173,17 @@ export class OrdersService {
     });
   }
 
-  async updateVideoLink(id: number, videoLink: string): Promise<Order> {
+  async updateVideoLink(id: number, file : Express.Multer.File ): Promise<Order> {
     const order = await this.findOne(id);
     if (order.status !== OrderStatus.PROCESSING && order.status !== OrderStatus.SENT_VIDEO && order.status !== OrderStatus.PAID) {
       throw new NotFoundException(`Không thể cập nhật video link cho đơn hàng với ID ${id} vì trạng thái không phải là PROCESSING hoặc SENT_VIDEO hoặc PAID`);
     }
-    order.video_link = videoLink;
+
+    if(file){
+      await this.r2Service.uploadFile(file).then(data => {
+        order.video_link = data;
+      });
+    }
     order.status = OrderStatus.SENT_VIDEO;
     return await this.orderRepository.save(order);
   }

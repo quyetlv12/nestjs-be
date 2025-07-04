@@ -37,9 +37,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   async handleConnection(client: Socket) {
     try {
-      const token = client.handshake.auth?.token;
-      console.log('[Gateway] Token received:', token);
-  
+      const token = client.handshake.auth?.token;  
       if (!token) {
         console.log('[Gateway] ❌ No token provided');
         client.disconnect();
@@ -47,7 +45,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       }
   
       const payload = this.jwtService.verify(token); // <-- có thể throw lỗi
-      console.log('[Gateway] ✅ JWT payload:', payload);
   
       client.data.user = payload;
       this.logger.log(`Client connected: ${payload.id}`);

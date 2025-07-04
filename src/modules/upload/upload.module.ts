@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { UploadController } from './upload.controller';
 import { UploadService } from './upload.service';
 import { CloudinaryProvider } from '../../common/cloudinary.provider';
+import { R2Service } from 'src/common/services/r2.service';
+import { R2Module } from 'src/common/services/r2.module';
 
 @Module({
   imports: [
@@ -39,6 +41,7 @@ import { CloudinaryProvider } from '../../common/cloudinary.provider';
         fileSize: 100 * 1024 * 1024, // 100MB limit
       },
     }),
+    R2Module
   ],
   controllers: [UploadController],
   providers: [UploadService, CloudinaryProvider],

@@ -9,6 +9,7 @@ import { Video } from '../videos/entities/video.entity';
 import { JwtTokenService } from 'src/common/services/jwt.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from '../upload/upload.module';
+import { R2Module } from 'src/common/services/r2.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UploadModule } from '../upload/upload.module';
       signOptions: { expiresIn: '7d' },
     }),
     UploadModule,
+    R2Module
   ],
   controllers: [ComplaintsController],
   providers: [ComplaintsService, JwtTokenService],

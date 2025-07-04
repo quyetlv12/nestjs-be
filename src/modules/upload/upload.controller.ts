@@ -9,10 +9,11 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { memoryStorage } from 'multer';
+import { R2Service } from 'src/common/services/r2.service';
 
 @Controller('api/upload')
 export class UploadController {
-  constructor(private readonly uploadService: UploadService) {}
+  constructor(private readonly uploadService: UploadService , private readonly r2Service: R2Service) {}
 
   // @Post('image')
   // @UseInterceptors(FileInterceptor('file'))
@@ -73,10 +74,20 @@ export class UploadController {
     FileInterceptor('file', {
       storage: memoryStorage(), // DÙNG cái này thay vì diskStorage
       limits: { fileSize: 50 * 1024 * 1024 },
+      fileFilter: (req, file, cb) => {
+      if (
+        file.mimetype.startsWith('image/') ||
+        file.mimetype.startsWith('video/')
+      ) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image and video files are allowed!'), false);
+      }
+    },
     }),
   )
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    const result = await this.uploadService.uploadImageCloudinary(file);
-    return { url: result.secure_url };
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {  
+    const url = await this.r2Service.uploadFile(file);
+    return { url };
   }
 }

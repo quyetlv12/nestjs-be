@@ -8,6 +8,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtTokenService } from 'src/common/services/jwt.service';
+import { R2Module } from 'src/common/services/r2.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { JwtTokenService } from 'src/common/services/jwt.service';
       secret:   'mysecret',
       signOptions: { expiresIn: '7d' },
     }),
+    R2Module
   ],
   controllers: [AuthController],
   providers: [AuthService , JwtStrategy , JwtTokenService],

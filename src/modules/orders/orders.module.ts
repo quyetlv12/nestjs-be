@@ -9,6 +9,7 @@ import { Video } from '../videos/entities/video.entity';
 import { JwtTokenService } from '../../common/services/jwt.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
+import { R2Module } from 'src/common/services/r2.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PermissionsGuard } from '../../common/guards/permissions.guard';
       secret:   'mysecret',
       signOptions: { expiresIn: '7d' },
     }),
+    R2Module
   ],
   controllers: [OrdersController],
   providers: [OrdersService, JwtTokenService, JwtAuthGuard, PermissionsGuard],

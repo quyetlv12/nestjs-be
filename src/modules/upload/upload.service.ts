@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
 import { UploadApiResponse } from 'cloudinary';
+import { R2Service } from 'src/common/services/r2.service';
 @Injectable()
 export class UploadService {
   constructor(private configService: ConfigService) {}

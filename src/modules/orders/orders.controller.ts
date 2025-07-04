@@ -8,6 +8,9 @@ import {
   ParseIntPipe,
   Query,
   UseGuards,
+  UploadedFiles,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth, getSchemaPath, ApiBody } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
@@ -25,6 +28,8 @@ import { PageResponseDto } from '../../common/dto/page-response-dto';
 import { Role } from '../roles/entities/role.entity';
 import { HaveRole } from '../../common/decorators/role.decorator';
 import { RoleConstants } from '../../common/constants/role.contants';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
 @ApiTags('orders')
 @ApiBearerAuth('JWT-auth')
@@ -257,12 +262,28 @@ export class OrdersController {
     type: Order 
   })
   @HaveRole(RoleConstants.TALENT)
+
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(), // DÙNG cái này thay vì diskStorage
+      limits: { fileSize: 50 * 1024 * 1024 },
+      fileFilter: (req, file, cb) => {
+      if (
+        file.mimetype.startsWith('image/') ||
+        file.mimetype.startsWith('video/')
+      ) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image and video files are allowed!'), false);
+      }
+    },
+    }),
+  )
   async updateVideoLink(
     @Param('id', ParseIntPipe) id: number,
-    @Body('videoLink') videoLink: string,
-    @Token() token: string
+    @UploadedFile() file: Express.Multer.File
   ): Promise<Order> {
     // check permission
-    return await this.ordersService.updateVideoLink(id, videoLink);
+    return await this.ordersService.updateVideoLink(id, file );
   }
 }

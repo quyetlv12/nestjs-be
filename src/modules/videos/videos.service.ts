@@ -5,6 +5,7 @@ import { User } from '../users/user.entity';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { Video } from './entities/video.entity';
+import { R2Service } from 'src/common/services/r2.service';
 
 @Injectable()
 export class VideoService {
@@ -14,9 +15,17 @@ export class VideoService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+
+    private readonly r2Service: R2Service
+  ) {
+  }
 
   async create(data: CreateVideoDto & { file?: Express.Multer.File, thumbnail?: Express.Multer.File }) {
+
+    console.log("data" , data);
+    
+
+
     const user = await this.userRepository.findOne({
       where: { id: data?.createdById },
     });
@@ -29,23 +38,17 @@ export class VideoService {
     // Upload video file
     let videoLink = '';
     if (data.file) {
-      const { UploadService } = await import('../upload/upload.service');
-      const uploadService = new UploadService({
-        get: () => process.env.APP_URL,
-      } as any);
-      const result = await uploadService.uploadImageCloudinary(data.file);
-      videoLink = result.secure_url;
+      await this.r2Service.uploadFile(data.file).then(data => {
+        videoLink = data;
+      });
     }
 
     // Upload thumbnail file
     let thumbnailLink = '';
     if (data.thumbnail) {
-      const { UploadService } = await import('../upload/upload.service');
-      const uploadService = new UploadService({
-        get: () => process.env.APP_URL,
-      } as any);
-      const result = await uploadService.uploadImageCloudinary(data.thumbnail);
-      thumbnailLink = result.secure_url;
+      await this.r2Service.uploadFile(data.thumbnail).then(data => {
+        thumbnailLink = data;
+      });
     }
 
     const video = this.videoRepository.create({
