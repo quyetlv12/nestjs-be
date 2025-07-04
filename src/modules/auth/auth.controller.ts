@@ -18,7 +18,13 @@ import { LoginDto } from './dto/loginDto';
 import { UpdateProfileDto } from './dto/updateProfileDto';
 import { memoryStorage } from 'multer';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { PermissionsGuard } from 'src/common/guards/permissions.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { ChangePasswordDto } from './dto/changePasswordDto';
 @Controller('/api/auth')
+@ApiBearerAuth('JWT-auth')
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -56,8 +62,22 @@ export class AuthController {
     files: { avatar?: Express.Multer.File[]},
   ) {
 
-    const avatar = files.avatar?.[0];
+    const avatar = files?.avatar?.[0];
     const tokenData = this.jwtTokenService.getTokenData(token);
     return this.authService.updateProfile({...updateDto , avatarFile : avatar}, +tokenData.userId);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('change-password')
+  changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @Token() token: string,
+  ) {
+    const tokenData = this.jwtTokenService.getTokenData(token);
+    return this.authService.changePassword(
+      changePasswordDto,
+      tokenData.userId
+    );
+  }
+
 }

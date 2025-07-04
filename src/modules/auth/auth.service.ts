@@ -14,6 +14,7 @@ import { User } from '../users/user.entity';
 import { UpdateProfileDto } from './dto/updateProfileDto';
 import { TokenData } from '../../common/services/jwt.service';
 import { R2Service } from '../../common/services/r2.service';
+import { ChangePasswordDto } from './dto/changePasswordDto';
 @Injectable()
 export class AuthService {
   @InjectRepository(User)
@@ -123,11 +124,11 @@ export class AuthService {
     updateDto: UpdateProfileDto & { avatarFile?: Express.Multer.File },
     userId: number,
   ) {
-    const _user = this.userRepository.findOne({ where: { id: userId } })
+    const _user =  await this.userRepository.findOne({ where: { id: userId } })
     if (!_user) {
       throw new UnauthorizedException('Không tìm thấy thông tin tài khoản');
     }
-    let avatar = _user['avatar'];
+    let avatar = updateDto.avatar || _user.avatar;
     if (updateDto.avatarFile) {
       await this.r2Service.uploadFile(updateDto.avatarFile).then(data => {
         avatar = data;
@@ -141,5 +142,23 @@ export class AuthService {
       avatar,
     });
     return this.userRepository.findOne({ where: { id: userId } });
+  }
+
+  async changePassword(dto : ChangePasswordDto, userId: number) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException('Không tìm thấy người dùng');
+    }
+
+    const isOldPasswordValid = await bcrypt.compare(dto.oldPassword, user.password);
+    if (!isOldPasswordValid) {
+      throw new UnauthorizedException('Mật khẩu cũ không chính xác');
+    }
+
+    const newHashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    user.password = newHashedPassword;
+    await this.userRepository.save(user);
+
+    return { message: 'Mật khẩu đã được cập nhật thành công' };
   }
 }

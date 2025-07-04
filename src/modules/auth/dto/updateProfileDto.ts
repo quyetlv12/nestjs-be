@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, MinLength, IsOptional } from 'class-validator';
+import { IsEmail, IsNotEmpty, MinLength, IsOptional, IsPhoneNumber } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -15,4 +15,11 @@ export class UpdateProfileDto {
 
   @IsOptional()
   avatar?: string;
+
+  @IsOptional()
+  @IsNotEmpty({ message: 'Số điện thoại là bắt buộc' })
+  @IsPhoneNumber("VN", { message: 'Số điện thoại không hợp lệ' })
+  phone?: string;
+
+  
 }
