@@ -77,11 +77,6 @@ export class CreateComplaintsTable1750500000000 implements MigrationInterface {
             isNullable: true,
           },
           {
-            name: 'videoId',
-            type: 'int',
-            isNullable: true,
-          },
-          {
             name: 'createdAt',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
@@ -106,12 +101,6 @@ export class CreateComplaintsTable1750500000000 implements MigrationInterface {
       new TableForeignKey({
         columnNames: ['orderId'],
         referencedTableName: 'orders',
-        referencedColumnNames: ['id'],
-        onDelete: 'SET NULL',
-      }),
-      new TableForeignKey({
-        columnNames: ['videoId'],
-        referencedTableName: 'videos',
         referencedColumnNames: ['id'],
         onDelete: 'SET NULL',
       }),

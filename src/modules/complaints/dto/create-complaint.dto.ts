@@ -54,7 +54,4 @@ export class CreateComplaintDto {
   @Type(() => Number)
   orderId: number;
 
-  @IsNumber()
-  @Type(() => Number)
-  videoId: number;
 } 
