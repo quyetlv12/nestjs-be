@@ -16,6 +16,7 @@ import { CommentsModule } from './modules/comments/comments.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { ComplaintsModule } from './modules/complaints/complaints.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ComplaintsModule } from './modules/complaints/complaints.module';
     OrdersModule,
     PaymentModule,
     ComplaintsModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

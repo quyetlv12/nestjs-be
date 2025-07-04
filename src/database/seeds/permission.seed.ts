@@ -68,6 +68,12 @@ export const seedPermissions = async (dataSource: DataSource) => {
     // Upload permissions
     { name: 'upload_file', description: 'Upload file' },
     { name: 'delete_file', description: 'Xóa file' },
+    
+    // Chat permissions
+    { name: 'chat:create', description: 'Tạo cuộc trò chuyện mới' },
+    { name: 'chat:read', description: 'Đọc tin nhắn chat' },
+    { name: 'chat:send', description: 'Gửi tin nhắn chat' },
+    { name: 'chat:delete', description: 'Xóa cuộc trò chuyện' },
   ];
 
   for (const perm of permissions) {

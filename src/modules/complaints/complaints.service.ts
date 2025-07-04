@@ -17,6 +17,7 @@ import { UpdateComplaintDto } from './dto/update-complaint.dto';
 import { ResolveComplaintDto } from './dto/resolve-complaint.dto';
 import { User } from '../users/user.entity';
 import { UploadService } from '../upload/upload.service';
+import { R2Service } from '../../common/services/r2.service';
 
 @Injectable()
 export class ComplaintsService {
@@ -26,6 +27,8 @@ export class ComplaintsService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     private uploadService: UploadService,
+    private readonly r2Service: R2Service
+
   ) {}
 
   private validateEvidence(evidence?: EvidenceDto): void {
@@ -66,8 +69,11 @@ export class ComplaintsService {
       // Upload each file to Cloudinary
       const uploadPromises = createComplaintDto.evidences_file.map(
         async (file) => {
-          const result = await this.uploadService.uploadImageCloudinary(file);
-          return { url: result.secure_url };
+          let url
+          await this.r2Service.uploadFile(file).then(data => {
+            url = data;
+          });
+          return { url };
         },
       );
 
@@ -330,11 +336,11 @@ export class ComplaintsService {
     }
 
     try {
-      // Upload lên Cloudinary
-      const uploadResult = await this.uploadService.uploadImageCloudinary(file);
+      // Upload lên R2
+      const url = await this.r2Service.uploadFile(file);
 
       const newImage = {
-        url: uploadResult.secure_url,
+        url,
         description: description || '',
       };
 

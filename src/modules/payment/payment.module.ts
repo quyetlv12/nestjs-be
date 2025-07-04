@@ -14,7 +14,7 @@ import { PermissionsGuard } from 'src/common/guards/permissions.guard';
   imports: [
     TypeOrmModule.forFeature([Payment, Order, User]),
     JwtModule.register({
-      secret: 'mysecret',
+      secret:   'mysecret',
       signOptions: { expiresIn: '7d' },
     }),
   ],

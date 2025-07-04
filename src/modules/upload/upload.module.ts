@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { R2Module } from '../../common/services/r2.module';
 import { v4 as uuidv4 } from 'uuid';
+import { CloudinaryProvider } from '../../common/cloudinary.provider';
 import { UploadController } from './upload.controller';
 import { UploadService } from './upload.service';
-import { CloudinaryProvider } from '../../common/cloudinary.provider';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { CloudinaryProvider } from '../../common/cloudinary.provider';
         fileSize: 100 * 1024 * 1024, // 100MB limit
       },
     }),
+    R2Module
   ],
   controllers: [UploadController],
   providers: [UploadService, CloudinaryProvider],

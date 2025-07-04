@@ -12,7 +12,8 @@ import { Repository } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
 import { User } from '../users/user.entity';
 import { UpdateProfileDto } from './dto/updateProfileDto';
-import { TokenData } from 'src/common/services/jwt.service';
+import { TokenData } from '../../common/services/jwt.service';
+import { R2Service } from '../../common/services/r2.service';
 @Injectable()
 export class AuthService {
   @InjectRepository(User)
@@ -21,7 +22,7 @@ export class AuthService {
   @InjectRepository(Role)
   private roleRepository: Repository<Role>;
 
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService, private readonly r2Service: R2Service) { }
 
   async register(registerDto: RegisterDto) {
     try {
@@ -113,8 +114,8 @@ export class AuthService {
     }
   }
 
-  async me (user : TokenData){
-    const _user = this.userRepository.findOne({ where: { id: user.userId }})
+  async me(user: TokenData) {
+    const _user = this.userRepository.findOne({ where: { id: user.userId } })
     return _user
   }
 
@@ -122,25 +123,19 @@ export class AuthService {
     updateDto: UpdateProfileDto & { avatarFile?: Express.Multer.File },
     userId: number,
   ) {
-    const _user = this.userRepository.findOne({ where: { id: userId }})
+    const _user = this.userRepository.findOne({ where: { id: userId } })
     if (!_user) {
       throw new UnauthorizedException('Không tìm thấy thông tin tài khoản');
     }
-    // Upload thumbnail file
     let avatar = _user['avatar'];
     if (updateDto.avatarFile) {
-      const { UploadService } = await import('../upload/upload.service');
-      const uploadService = new UploadService({
-        get: () => process.env.APP_URL,
-      } as any);
-      const result = await uploadService.uploadImageCloudinary(
-        updateDto.avatarFile,
-      );
-      avatar = result.secure_url;
-    }    
+      await this.r2Service.uploadFile(updateDto.avatarFile).then(data => {
+        avatar = data;
+      });
+    }
     // Remove avatarFile from updateDto to avoid EntityPropertyNotFoundError
     const { avatarFile, ...updateData } = updateDto;
-    
+
     await this.userRepository.update(userId, {
       ...updateData,
       avatar,

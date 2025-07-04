@@ -9,14 +9,16 @@ import { Video } from '../videos/entities/video.entity';
 import { JwtTokenService } from '../../common/services/jwt.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
+import { R2Module } from '../../common/services/r2.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, User, Video]),
     JwtModule.register({
-      secret: 'mysecret',
+      secret:   'mysecret',
       signOptions: { expiresIn: '7d' },
     }),
+    R2Module
   ],
   controllers: [OrdersController],
   providers: [OrdersService, JwtTokenService, JwtAuthGuard, PermissionsGuard],

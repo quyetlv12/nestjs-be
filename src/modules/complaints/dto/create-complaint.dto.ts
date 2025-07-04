@@ -19,11 +19,11 @@ export class EvidenceDto {
   @Type(() => EvidenceImageDto)
   @IsOptional()
   images?: EvidenceImageDto[];
-  
+
   @IsString()
   @IsOptional()
   evidenceDescription?: string;
-  
+
   @IsObject()
   @IsOptional()
   additionalData?: any;
@@ -51,10 +51,10 @@ export class CreateComplaintDto {
   evidence?: EvidenceDto;
 
   @IsNumber()
-  @IsOptional()
-  orderId?: number;
+  @Type(() => Number)
+  orderId: number;
 
   @IsNumber()
-  @IsOptional()
-  videoId?: number;
+  @Type(() => Number)
+  videoId: number;
 } 

@@ -1,0 +1,621 @@
+{
+	"info": {
+		"_postman_id": "chat-api-collection",
+		"name": "Chat API - NestJS Backend",
+		"description": "Complete API collection for Chat module including authentication, CRUD operations, and real-time features",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "chat-api"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login to get JWT token for chat operations"
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"role\": \"customer\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register new user for chat testing"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints to get JWT token"
+		},
+		{
+			"name": "💬 Chat Management",
+			"item": [
+				{
+					"name": "Create Chat",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"participant2Id\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat"
+							]
+						},
+						"description": "Create a new chat conversation between current user and participant2Id"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Chats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/chat",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat"
+							]
+						},
+						"description": "Get all chat conversations for the current user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Chat by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/chat/{{chatId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"{{chatId}}"
+							]
+						},
+						"description": "Get specific chat conversation with messages"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Chat",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/chat/{{chatId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"{{chatId}}"
+							]
+						},
+						"description": "Delete/archive a chat conversation"
+					},
+					"response": []
+				}
+			],
+			"description": "Chat conversation management endpoints"
+		},
+		{
+			"name": "📨 Messages",
+			"item": [
+				{
+					"name": "Send Text Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Hello! This is a test message.\",\n  \"type\": \"text\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/{{chatId}}/messages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"{{chatId}}",
+								"messages"
+							]
+						},
+						"description": "Send a text message to a chat conversation"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Image Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "content",
+									"value": "Check out this image!",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/{{chatId}}/messages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"{{chatId}}",
+								"messages"
+							]
+						},
+						"description": "Send an image message to a chat conversation"
+					},
+					"response": []
+				},
+				{
+					"name": "Send File Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "content",
+									"value": "Here's the document you requested",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/{{chatId}}/messages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"{{chatId}}",
+								"messages"
+							]
+						},
+						"description": "Send a file message to a chat conversation"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Messages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/chat/{{chatId}}/messages?page=1&limit=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"{{chatId}}",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Get paginated messages from a chat conversation"
+					},
+					"response": []
+				}
+			],
+			"description": "Message management endpoints"
+		},
+		{
+			"name": "👁️ Read Status",
+			"item": [
+				{
+					"name": "Mark Message as Read",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"isRead\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/messages/{{messageId}}/read",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"messages",
+								"{{messageId}}",
+								"read"
+							]
+						},
+						"description": "Mark a specific message as read"
+					},
+					"response": []
+				},
+				{
+					"name": "Mark All Messages as Read",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/chat/{{chatId}}/messages/read-all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"{{chatId}}",
+								"messages",
+								"read-all"
+							]
+						},
+						"description": "Mark all messages in a chat as read"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unread Count",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/chat/unread-count",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"unread-count"
+							]
+						},
+						"description": "Get total count of unread messages"
+					},
+					"response": []
+				}
+			],
+			"description": "Message read status management"
+		},
+		{
+			"name": "🔍 Search & Filter",
+			"item": [
+				{
+					"name": "Search Messages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/chat/search?q=hello&chatId={{chatId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "hello"
+								},
+								{
+									"key": "chatId",
+									"value": "{{chatId}}"
+								}
+							]
+						},
+						"description": "Search messages by keyword"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Messages by Date Range",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/chat/{{chatId}}/messages?startDate=2024-01-01&endDate=2024-12-31",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"{{chatId}}",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2024-01-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-12-31"
+								}
+							]
+						},
+						"description": "Get messages within a date range"
+					},
+					"response": []
+				}
+			],
+			"description": "Search and filter functionality"
+		},
+		{
+			"name": "📊 Analytics",
+			"item": [
+				{
+					"name": "Get Chat Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/chat/statistics",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"statistics"
+							]
+						},
+						"description": "Get chat statistics and analytics"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Activity",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/chat/activity",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"activity"
+							]
+						},
+						"description": "Get user chat activity and engagement"
+					},
+					"response": []
+				}
+			],
+			"description": "Analytics and statistics endpoints"
+		},
+		{
+			"name": "🔧 Socket.IO Test",
+			"item": [
+				{
+					"name": "WebSocket Connection Test",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwtToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/chat/socket-test",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"socket-test"
+							]
+						},
+						"description": "Test WebSocket connection status"
+					},
+					"response": []
+				}
+			],
+			"description": "Socket.IO connection testing"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-set JWT token from login response",
+					"if (pm.response && pm.response.json() && pm.response.json().access_token) {",
+					"    pm.environment.set('jwtToken', pm.response.json().access_token);",
+					"    console.log('JWT token automatically set');",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "jwtToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "chatId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "messageId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+} 

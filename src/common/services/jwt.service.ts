@@ -49,7 +49,7 @@ export class JwtTokenService {
   verifyToken(token: string): JwtPayload {
     try {
       return this.jwtService.verify(token, {
-        secret: 'mysecret',
+        secret:   'mysecret',
       });
     } catch (error) {
       throw new Error('Token không hợp lệ');
