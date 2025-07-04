@@ -12,8 +12,8 @@ import { Repository } from 'typeorm';
 import { Role } from '../roles/entities/role.entity';
 import { User } from '../users/user.entity';
 import { UpdateProfileDto } from './dto/updateProfileDto';
-import { TokenData } from 'src/common/services/jwt.service';
-import { R2Service } from 'src/common/services/r2.service';
+import { TokenData } from '../../common/services/jwt.service';
+import { R2Service } from '../../common/services/r2.service';
 @Injectable()
 export class AuthService {
   @InjectRepository(User)

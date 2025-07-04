@@ -5,7 +5,7 @@ import { User } from '../users/user.entity';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { UpdateVideoDto } from './dto/update-video.dto';
 import { Video } from './entities/video.entity';
-import { R2Service } from 'src/common/services/r2.service';
+import { R2Service } from '../../common/services/r2.service';
 
 @Injectable()
 export class VideoService {

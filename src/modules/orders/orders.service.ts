@@ -6,7 +6,7 @@ import { Order, VideoProtocolMethod, RecipientType, OrderStatus } from './entiti
 import { User } from '../users/user.entity';
 import { PageResponseDto } from '../../common/dto/page-response-dto';
 import { OrderSearchRequestDto } from './dto/order-search-request-dto';
-import { R2Service } from 'src/common/services/r2.service';
+import { R2Service } from '../../common/services/r2.service';
 
 @Injectable()
 export class OrdersService {

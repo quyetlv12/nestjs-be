@@ -17,7 +17,7 @@ import { UpdateComplaintDto } from './dto/update-complaint.dto';
 import { ResolveComplaintDto } from './dto/resolve-complaint.dto';
 import { User } from '../users/user.entity';
 import { UploadService } from '../upload/upload.service';
-import { R2Service } from 'src/common/services/r2.service';
+import { R2Service } from '../../common/services/r2.service';
 
 @Injectable()
 export class ComplaintsService {

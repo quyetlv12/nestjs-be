@@ -9,7 +9,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { memoryStorage } from 'multer';
-import { R2Service } from 'src/common/services/r2.service';
+import { R2Service } from '../../common/services/r2.service';
 
 @Controller('api/upload')
 export class UploadController {
