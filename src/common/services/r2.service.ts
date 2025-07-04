@@ -2,7 +2,6 @@
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as dayjs from 'dayjs';
 
 @Injectable()
 export class R2Service {
@@ -31,9 +30,8 @@ export class R2Service {
         } else if (file.mimetype.startsWith('video/')) {
             folder = 'videos';
         }
-        const date = dayjs().format('MM-DD-YYYY')
         
-        const key = `uploads/${folder}/${date}/${Date.now()}_${Math.floor(Math.random() * 1000)}.${ext}`;
+        const key = `uploads/${folder}/${Date.now()}_${Math.floor(Math.random() * 1000)}.${ext}`;
 
         await this.s3.send(
             new PutObjectCommand({
