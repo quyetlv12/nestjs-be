@@ -244,13 +244,6 @@ export class ComplaintsService {
     });
   }
 
-  async getComplaintsByVideo(videoId: number): Promise<Complaint[]> {
-    return await this.complaintsRepository.find({
-      where: { videoId },
-      relations: ['user', 'resolvedBy'],
-      order: { createdAt: 'DESC' },
-    });
-  }
 
   async getComplaintsByUser(userId: number): Promise<Complaint[]> {
     return await this.complaintsRepository.find({

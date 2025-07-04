@@ -125,26 +125,6 @@ export class ComplaintsController {
     return await this.complaintsService.getComplaintsByOrder(parseInt(orderId));
   }
 
-  @Get('video/:videoId')
-  async getComplaintsByVideo(
-    @Param('videoId') videoId: string,
-    @CurrentUser() user: any,
-  ) {
-    // Kiểm tra quyền - chỉ admin hoặc user liên quan mới được xem
-    const userEntity = await this.complaintsService['usersRepository'].findOne({
-      where: { id: user.id },
-      relations: ['roles'],
-    });
-
-    const isAdmin = userEntity?.roles?.some(role => role.name === 'admin');
-    if (!isAdmin) {
-      // Kiểm tra xem user có liên quan đến video này không
-      // Có thể cần thêm logic kiểm tra quyền sở hữu video
-    }
-
-    return await this.complaintsService.getComplaintsByVideo(parseInt(videoId));
-  }
-
   @Get(':id')
   async findOne(
     @Param('id') id: string,

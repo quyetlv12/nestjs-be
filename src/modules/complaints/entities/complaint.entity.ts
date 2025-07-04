@@ -87,13 +87,6 @@ export class Complaint {
   @Column({ name: 'orderId', nullable: true })
   orderId?: number;
 
-  @ManyToOne(() => Video, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'videoId' })
-  video?: Video;
-
-  @Column({ name: 'videoId', nullable: true })
-  videoId?: number;
-
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'resolvedBy' })
   resolvedBy?: User;
