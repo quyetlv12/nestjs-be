@@ -81,7 +81,7 @@ export class ChatService {
     });
   }
 
-  async getChatById(currentUserId: number, chatId: number): Promise<Chat> {
+  async getChatById(currentUserId: number, chatId: number): Promise<Chat & {displayUser}> {
     const chat = await this.chatRepository.findOne({
       where: { id: chatId },
       relations: ['participant1', 'participant2', 'messages', 'messages.sender'],
@@ -103,7 +103,18 @@ export class ChatService {
       throw new ForbiddenException('Access denied');
     }
 
-    return chat;
+
+
+    let otherParticipant;
+    if (chat.participant1Id === currentUserId) {
+      otherParticipant = chat.participant2;
+    } else {
+      otherParticipant = chat.participant1;
+    }
+    return {
+      ...chat,
+      displayUser: otherParticipant,
+    };
   }
 
   async sendMessage(
