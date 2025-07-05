@@ -21,10 +21,10 @@ export class ChatMessage {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'chatId' })
+  @Column({ name: 'chat_id' })
   chatId: number;
 
-  @Column({ name: 'senderId' })
+  @Column({ name: 'sender_id' })
   senderId: number;
 
   @Column({ type: 'enum', enum: MessageType, default: MessageType.TEXT })
@@ -53,10 +53,10 @@ export class ChatMessage {
 
   // Relationships
   @ManyToOne(() => Chat, (chat) => chat.messages, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'chatId' })
+  @JoinColumn({ name: 'chat_id' })
   chat: Chat;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'senderId' })
+  @JoinColumn({ name: 'sender_id' })
   sender: User;
 } 

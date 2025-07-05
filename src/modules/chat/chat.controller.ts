@@ -8,14 +8,19 @@ import {
   Post,
   Put,
   UploadedFile,
-  UseGuards
+  UseGuards,
+  UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { Token } from 'src/common/decorators/token.decorator';
 import { JwtTokenService } from 'src/common/services/jwt.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../../common/guards/permissions.guard';
 import { ChatService } from './chat.service';
+import { ChatGateway } from './chat.gateway';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { MessageType } from './entities/chat-message.entity';
@@ -23,7 +28,11 @@ import { MessageType } from './entities/chat-message.entity';
 @Controller('api/chat')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class ChatController {
-  constructor(private readonly chatService: ChatService, private readonly jwtTokenService: JwtTokenService,) { }
+  constructor(
+    private readonly chatService: ChatService, 
+    private readonly jwtTokenService: JwtTokenService,
+    private readonly chatGateway: ChatGateway,
+  ) { }
 
   @Post()
   async createChat(
@@ -114,5 +123,36 @@ export class ChatController {
   ) {
     await this.chatService.deleteChat(currentUserId, chatId);
     return { message: 'Chat deleted successfully' };
+  }
+
+  @Post(':id/upload-image')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: memoryStorage(),
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+          cb(null, true);
+        } else {
+          cb(new Error('Chỉ chấp nhận file hình ảnh'), false);
+        }
+      },
+    }),
+  )
+  async uploadImage(
+    @Token() token: string,
+    @Param('id', ParseIntPipe) chatId: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Không có file được upload');
+    }
+
+    const tokenData = this.jwtTokenService.getTokenData(token);
+    const message = await this.chatService.uploadImage(tokenData?.userId, chatId, file);
+    
+    this.chatGateway.emitMessageToChat(chatId, 'receive_message', message);
+    
+    return message;
   }
 } 
