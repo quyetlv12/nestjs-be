@@ -16,8 +16,9 @@ import { CreateComplaintDto, EvidenceDto } from './dto/create-complaint.dto';
 import { UpdateComplaintDto } from './dto/update-complaint.dto';
 import { ResolveComplaintDto } from './dto/resolve-complaint.dto';
 import { User } from '../users/user.entity';
-import { UploadService } from '../upload/upload.service';
 import { R2Service } from '../../common/services/r2.service';
+import { OrdersService } from '../orders/orders.service';
+import { Order, OrderStatus } from '../orders/entities/order.entity';
 
 @Injectable()
 export class ComplaintsService {
@@ -26,9 +27,9 @@ export class ComplaintsService {
     private complaintsRepository: Repository<Complaint>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    private uploadService: UploadService,
-    private readonly r2Service: R2Service
-
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
+    private readonly r2Service: R2Service,
   ) {}
 
   private validateEvidence(evidence?: EvidenceDto): void {
@@ -69,8 +70,8 @@ export class ComplaintsService {
       // Upload each file to Cloudinary
       const uploadPromises = createComplaintDto.evidences_file.map(
         async (file) => {
-          let url
-          await this.r2Service.uploadFile(file).then(data => {
+          let url;
+          await this.r2Service.uploadFile(file).then((data) => {
             url = data;
           });
           return { url };
@@ -82,6 +83,23 @@ export class ComplaintsService {
 
     // Remove evidences_file from createComplaintDto to avoid EntityPropertyNotFoundError
     const { evidences_file, ...complaintData } = createComplaintDto;
+
+    console.log('createComplaintDto', createComplaintDto);
+
+    // Tìm đơn hàng và chuyển trạng thái về khiếu nại
+    const order = await this.orderRepository.findOne({
+      where: { id: createComplaintDto.orderId },
+    });
+
+    if (!order) {
+      throw new NotFoundException(
+        `Order with ID ${createComplaintDto.orderId} not found`,
+      );
+    }
+
+    // Chuyển trạng thái đơn hàng về COMPLAINT
+    order.status = OrderStatus.COMPLAINT;
+    await this.orderRepository.save(order);
 
     const complaint = this.complaintsRepository.create({
       ...complaintData,
@@ -119,7 +137,7 @@ export class ComplaintsService {
     }
     const [data, total] = await this.complaintsRepository.findAndCount({
       where,
-      relations: ['user', 'order', 'video', 'resolvedBy'],
+      relations: ['user', 'order', 'resolvedBy'],
       skip,
       take: limit,
       order: { createdAt: 'DESC' },
@@ -129,25 +147,24 @@ export class ComplaintsService {
   }
 
   async findOne(id: number, userId?: number): Promise<Complaint> {
-    const complaint : any = await this.complaintsRepository.findOne({
+    const complaint: any = await this.complaintsRepository.findOne({
       where: { id },
-      relations: ['user', 'order', 'video', 'resolvedBy'],
+      relations: ['user', 'order', 'resolvedBy'],
     });
 
     if (!complaint) {
       throw new NotFoundException(`Complaint with ID ${id} not found`);
     }
 
-
     // find talent
 
     const talent = await this.usersRepository.findOne({
-      where: { id: complaint.order.talentId},
+      where: { id: complaint.order.talentId },
     });
 
     return {
       ...complaint,
-      talent
+      talent,
     };
   }
 
@@ -188,7 +205,25 @@ export class ComplaintsService {
     resolvedById: number,
   ): Promise<Complaint> {
     const complaint = await this.findOne(id);
+    console.log("complaint" , complaint);
+    
+    // Cập nhật trạng thái đơn hàng về RESOLVING
+    if (complaint.orderId) {
+      // Tìm đơn hàng và chuyển trạng thái về khiếu nại
+      const order = await this.orderRepository.findOne({
+        where: { id: complaint.orderId },
+      });
 
+      if (!order) {
+        throw new NotFoundException(
+          `Order with ID ${complaint.orderId} not found`,
+        );
+      }
+
+      // Chuyển trạng thái đơn hàng về RESOLVING
+      order.status = OrderStatus.RESOLVING;
+      await this.orderRepository.save(order);
+    }
     Object.assign(complaint, {
       ...resolveComplaintDto,
       resolvedById,
@@ -197,7 +232,6 @@ export class ComplaintsService {
 
     return await this.complaintsRepository.save(complaint);
   }
-
 
   async priority(
     id: number,
@@ -244,11 +278,10 @@ export class ComplaintsService {
     });
   }
 
-
   async getComplaintsByUser(userId: number): Promise<Complaint[]> {
     return await this.complaintsRepository.find({
       where: { userId },
-      relations: ['order', 'video', 'resolvedBy'],
+      relations: ['order', 'resolvedBy'],
       order: { createdAt: 'DESC' },
     });
   }

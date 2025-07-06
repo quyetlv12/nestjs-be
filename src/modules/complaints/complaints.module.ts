@@ -10,6 +10,7 @@ import { JwtTokenService } from '../../common/services/jwt.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UploadModule } from '../upload/upload.module';
 import { R2Module } from '../../common/services/r2.module';
+import { OrdersModule } from '../orders/orders.module';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { R2Module } from '../../common/services/r2.module';
       signOptions: { expiresIn: '7d' },
     }),
     UploadModule,
-    R2Module
+    R2Module,
   ],
   controllers: [ComplaintsController],
   providers: [ComplaintsService, JwtTokenService],

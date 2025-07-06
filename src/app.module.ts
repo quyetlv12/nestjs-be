@@ -17,6 +17,7 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { ComplaintsModule } from './modules/complaints/complaints.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { ReportModule } from './modules/report/report.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ChatModule } from './modules/chat/chat.module';
     PaymentModule,
     ComplaintsModule,
     ChatModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

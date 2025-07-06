@@ -90,4 +90,13 @@ export class PaymentService {
       limit: request.limit,
     });
   }
+
+  async getTotalRevenue(): Promise<number> {
+    const result = await this.orderRepository
+      .createQueryBuilder('orders')
+      .select('SUM(orders.price)', 'sum')
+      .where('orders.status = :status', { status: 'completed' })
+      .getRawOne();
+    return Number(result.sum) || 0;
+  }
 }
